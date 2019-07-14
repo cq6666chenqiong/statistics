@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.statistics.dao.MemScoreStatisticsDao" >
+
+    <select id="getEndemicArea" resultType="map">
+        select * from endemic_area
+    </select>
+
+    <select id="getProfessionalGroup" resultType="map">
+        select * from professional_group
+    </select>
+
+    <select id="getlevels" resultType="map">
+        select id,title from classroom where status = 'published'
+    </select>
+
+    <select id="getUserScoreNotAcsy" resultType="map">
+        select * from user_score where isacsy = 0
+    </select>
+
+    <select id="getCourseById" parameterType="map" resultType="map">
+        select * from course where id = #{courseId}
+    </select>
+
+    <select id="getLessonById" parameterType="map" resultType="map">
+        select * from course_lesson where id = #{lessonId}
+    </select>
+
+    <select id="getTestPagerByMap" parameterType="map" resultType="map">
+        select target from testpaper_result
+        where testId = #{testId} and userId = #{userId}
+        limit 0,1
+    </select>
+
+    <select id="getUserStatisticsScores" parameterType="map" resultType="map">
+        select * from user_statistics_score
+        <where>
+            1 = 1
+            <if test="userId != null and userId != ''">
+                and userId = #{userId}
+            </if>
+        </where>
+    </select>
+
+    <select id="updateUserStatisticsScores" parameterType="map" resultType="map">
+        update user_statistics_score
+        <set>
+            <if test="totalScore != null">total_score = #{totalScore}</if>
+        </set>
+        where
+            1 = 1
+            and userId = #{userId}
+            and type = #{type}
+            and year = #{year}
+    </select>
+
+
+    <insert id="addUserStatisticsScore" parameterType="map">
+        <!--<selectKey keyProperty="id" resultType="int" order="BEFORE">
+            SELECT LAST_INSERT_ID()  as  id
+        </selectKey>-->
+        insert into user_statistics_score (
+            id,
+            userId,
+            type,
+            typeName,
+            total_score,
+            year
+        )
+        values(
+            #{id},
+            #{userId},
+            #{type},
+            #{typeName},
+            #{totalScore},
+            #{year}
+        )
+    </insert>
+
+
+
+</mapper>
