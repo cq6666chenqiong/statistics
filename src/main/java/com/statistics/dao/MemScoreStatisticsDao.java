@@ -24,4 +24,18 @@ public interface MemScoreStatisticsDao {
     void updateUserStatisticsScores(Map queryMap);
 
     void addUserStatisticsScore(Map queryMap);
+
+    Map getUserProfileById(Map queryMap);
+
+    Map getUserById(Map queryMap);
+
+    List<Map> getMemberCourse(Map coureMap);
+
+    List<Map> getCoursesScoreMessage(Map coureMap);
+
+    Map getUserScoreMessage(Map coureMap);
+
+    List<Map<String,String>> getAllUser();
+
+    Map<String,String> getMemberCourseScore(Map queryMap);
 }

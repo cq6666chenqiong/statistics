@@ -39,6 +39,9 @@
             <if test="userId != null and userId != ''">
                 and userId = #{userId}
             </if>
+            <if test="typeName != null and typeName != ''">
+                and typeName = #{typeName}
+            </if>
         </where>
     </select>
 
@@ -46,6 +49,7 @@
         update user_statistics_score
         <set>
             <if test="totalScore != null">total_score = #{totalScore}</if>
+            <if test="passmark != null">passmark = #{passmark}</if>
         </set>
         where
             1 = 1
@@ -65,7 +69,9 @@
             type,
             typeName,
             total_score,
-            year
+            year,
+            nickname,
+            endemic_area
         )
         values(
             #{id},
@@ -73,9 +79,55 @@
             #{type},
             #{typeName},
             #{totalScore},
-            #{year}
+            #{year},
+            #{nickname},
+            #{endemicArea}
         )
     </insert>
+
+    <select id="getUserProfileById"  parameterType="map" resultType="map">
+        select * from user_profile where id = #{userId}
+    </select>
+
+    <select id="getUserById"  parameterType="map" resultType="map">
+        select * from user where id = #{userId}
+    </select>
+
+    <select id="getCoursesScoreMessage"  parameterType="map" resultType="map">
+        <![CDATA[
+            select c.id,c.giveCredit,c.buyable type,cl.title name from course c left join classroom cl on c.buyable = cl.id where c.buyable < 30 and cl.title is not NULL
+            union
+            select c.id,c.giveCredit,c.buyable type,p.pgroup name from course c left join professional_group p on c.buyable = p.group_no where c.buyable > 30 and p.pgroup is not NULL
+        ]]>
+    </select>
+
+    <select id="getUserScoreMessage"  parameterType="map" resultType="map">
+        select sum(score) score from user_score where
+        userId = #{userId}
+        and courseId = #{courseId}
+    </select>
+
+    <select id="getMemberCourse"  parameterType="map" resultType="map">
+        select cm.courseId,c.giveCredit from course c LEFT JOIN course_member cm on c.id = cm.courseId
+        <where>
+            1 = 1
+            <if test="type != null">and c.buyable = #{type}</if>
+            <if test="userId != null">and cm.userId = #{userId}</if>
+        </where>
+    </select>
+
+    <select id="getAllUser"  parameterType="map" resultType="map">
+        select u.id,u.nickname,up.varcharField3 endemic_area,
+        IF ( up.varcharField4='' , '其他' , up.varcharField4 ) professional_groups,company cengji
+        from user u LEFT JOIN user_profile up on u.id = up.id
+    </select>
+
+    <select id="getMemberCourseScore"  parameterType="map" resultType="map">
+        select courseId,sum(score) score from user_score where userId = #{userId}
+        and courseId = #{courseId} and year = #{year}
+    </select>
+
+
 
 
 

@@ -65,4 +65,39 @@ public class MemScoreStatisticsServiceImpl implements MemScoreStatisticsService 
     public void addUserStatisticsScore(Map queryMap) {
         memScoreStatisticsDao.addUserStatisticsScore(queryMap);
     }
+
+    @Override
+    public Map getUserProfileById(Map queryMap) {
+        return memScoreStatisticsDao.getUserProfileById(queryMap);
+    }
+
+    @Override
+    public Map getUserById(Map queryMap) {
+        return memScoreStatisticsDao.getUserById(queryMap);
+    }
+
+    @Override
+    public List<Map> getCoursesScoreMessage(Map coureMap) {
+        return memScoreStatisticsDao.getCoursesScoreMessage(coureMap);
+    }
+
+    @Override
+    public List<Map> getMemberCourse(Map coureMap) {
+        return memScoreStatisticsDao.getMemberCourse(coureMap);
+    }
+
+    @Override
+    public Map getUserScoreMessage(Map coureMap) {
+        return memScoreStatisticsDao.getUserScoreMessage(coureMap);
+    }
+
+    @Override
+    public List<Map<String,String>> getAllUser() {
+        return memScoreStatisticsDao.getAllUser();
+    }
+
+    @Override
+    public Map<String,String> getMemberCourseScore(Map queryMap) {
+        return memScoreStatisticsDao.getMemberCourseScore(queryMap);
+    }
 }

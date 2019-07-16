@@ -24,4 +24,18 @@ public interface MemScoreStatisticsService {
     void updateUserStatisticsScores(Map queryMap);
 
     void addUserStatisticsScore(Map queryMap);
+
+    Map getUserProfileById(Map queryMap);
+
+    Map getUserById(Map queryMap);
+
+    List<Map> getCoursesScoreMessage(Map coureMap);
+
+    List<Map> getMemberCourse(Map coureMap);
+
+    Map getUserScoreMessage(Map coureMap);
+
+    List<Map<String,String>> getAllUser();
+
+    Map<String,String> getMemberCourseScore(Map queryMap);
 }
