@@ -13,6 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.math.BigDecimal;
+
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -148,6 +153,8 @@ public class MemScoreStatisticsController {
             Map coureMap = new HashMap();
             coureMap.put("userId",userId);
             coureMap.put("type",type);
+            queryMap.put("beginTime",1546272000L);
+            queryMap.put("endTime",1577808000L);
             List<Map> list = memScoreStatisticsService.getMemberCourse(coureMap);
             Integer learnCount = list.size();
             Integer passCount = 0;
@@ -161,7 +168,7 @@ public class MemScoreStatisticsController {
                     userScore = new BigDecimal(StringUtil.getString(cm.get("score")));
                 }
                 if(userScore.compareTo(passScore)>=0){
-                    System.out.println(list.get(j).get("courseId")+"============通过");
+                    //System.out.println(list.get(j).get("courseId")+"============通过");
                     passCount++;
                 }
             }
@@ -182,6 +189,7 @@ public class MemScoreStatisticsController {
     @RequestMapping(value = "/makeMemberStatistics")
     @ResponseBody
     public String makeMemberStatistics(){
+        Date date = new Date();
         List<Map> endemicArealist = memScoreStatisticsService.getEndemicArea();
         List<Map> professionnallist = memScoreStatisticsService.getProfessionalGroup();
         Map<Integer,String> professionnalMap = new HashMap<Integer,String>();
@@ -206,14 +214,14 @@ public class MemScoreStatisticsController {
             Map map = levellist.get(i);
             levelNameMap.put(StringUtil.getString(map.get("title")),Integer.valueOf(StringUtil.getString(map.get("id"))));
         }
-        System.out.println("==================go on ==========================");
+        //System.out.println("==================go on ==========================");
         List<Map<String,String>> memberList = memScoreStatisticsService.getAllUser();
         for(int i=0;i<memberList.size();i++){
             Map<String,String> map = memberList.get(i);
             String userId = StringUtil.getString(map.get("id"));
             String groups = map.get("professional_groups");
             List<Map> userScoreList = memScoreStatisticsService.getUserStatisticsScores(map);
-            calculateScore(professionnalMap,levelMap,map,professionnalNameMap,levelNameMap);
+            calculateScore(professionnalMap,levelMap,map,professionnalNameMap,levelNameMap,date);
         }
         Map queryMap = new HashMap();
         List<Map> userScoreList = memScoreStatisticsService.getUserStatisticsScores(queryMap);
@@ -228,6 +236,7 @@ public class MemScoreStatisticsController {
             List<Map> list = memScoreStatisticsService.getMemberCourse(coureMap);
             Integer learnCount = list.size();
             Integer passCount = 0;
+            int ispass = 0;
             for(int j=0;j<list.size();j++){
 
                 BigDecimal passScore = new BigDecimal(StringUtil.getString(list.get(j).get("giveCredit")));
@@ -238,28 +247,37 @@ public class MemScoreStatisticsController {
                     userScore = new BigDecimal(StringUtil.getString(cm.get("score")));
                 }
                 if(userScore.compareTo(passScore)>=0){
-                    System.out.println(list.get(j).get("courseId")+"============通过");
+                    //System.out.println(list.get(j).get("courseId")+"============通过");
                     passCount++;
                 }
             }
+            if(learnCount == passCount && learnCount > 0 && passCount > 0){
 
+                System.out.println("ispass==="+ispass);
+                ispass = 1;
+            }
             String passmark = passCount + "/" + learnCount;
             Map updateMap = new HashMap();
             updateMap.put("userId",userId);
             updateMap.put("type",type);
             updateMap.put("year","2019");
             updateMap.put("passmark",passmark);
+            updateMap.put("totalnum",learnCount);
+            updateMap.put("passnum",passCount);
+            updateMap.put("ispass",ispass);
             memScoreStatisticsService.updateUserStatisticsScores(updateMap);
 
         }
         return "ok";
     }
 
-    public void calculateScore(Map<Integer,String> professionnalMap,Map<Integer,String> levelMap,Map<String,String> member,Map<String,Integer> professionnalNameMap,Map<String,Integer> levelNameMap){
+    public void calculateScore(Map<Integer,String> professionnalMap,Map<Integer,String> levelMap,Map<String,String> member,Map<String,Integer> professionnalNameMap,Map<String,Integer> levelNameMap,Date date){
         String userId = StringUtil.getString(member.get("id"));
         Integer cengji = Integer.valueOf(StringUtil.getString(member.get("cengji")).trim());
         Map queryMap = new HashMap();
         queryMap.put("userId",userId);
+        queryMap.put("beginTime",1546272000L);
+        queryMap.put("endTime",1577808000L);
         /* coureMap.put("userId",userId);
         coureMap.put("type",type);*/
         String groups = StringUtil.getString(member.get("professional_groups"));
@@ -272,6 +290,7 @@ public class MemScoreStatisticsController {
             set.add(professionnalNameMap.get(groupStrs[i]));
         }
         set.add(cengji);
+        //获取用户当前年份所学的课程
         List<Map> list = memScoreStatisticsService.getMemberCourse(queryMap);
         Map<Integer,Map> fenMap = new HashMap<Integer,Map>();
         for(int i=0;i<list.size();i++){
@@ -296,10 +315,10 @@ public class MemScoreStatisticsController {
             }
             String thisscore = "0";
             if(courseScore == null){
-                System.out.println("得分0===========");
+                //System.out.println("得分0===========");
                 thisscore = "0";
-            }else{
-                System.out.println("得分" + StringUtil.getString(courseScore.get("score")) + "===========");
+            }else{//System.out.println("得分" + StringUtil.getString(courseScore.get("score")) + "===========");
+
                 thisscore = StringUtil.getString(courseScore.get("score"));
             }
 
@@ -324,6 +343,7 @@ public class MemScoreStatisticsController {
             }
 
         }
+        /*
         Iterator<Integer> its = set.iterator();
         while(its.hasNext()){
             Integer key = its.next();
@@ -350,17 +370,38 @@ public class MemScoreStatisticsController {
                 fenMap.put(key,fMap);
             }
         }
-        System.out.println(JSON.toJSONString(fenMap));
+        */
+        //System.out.println(JSON.toJSONString(fenMap));
         Iterator<Integer> is = fenMap.keySet().iterator();
         while(is.hasNext()){
             Integer key = is.next();
             Map scoreMap =fenMap.get(key);
-            memScoreStatisticsService.addUserStatisticsScore(scoreMap);
+            List userScores = memScoreStatisticsService.getUserStatisticsScores(scoreMap);
+            System.out.println("个数"+userScores.size());
+            if(userScores != null && userScores.size() > 0){
+                System.out.println("修改");
+                memScoreStatisticsService.updateUserStatisticsScores(scoreMap);
+            }else{
+                System.out.println("增加");
+                memScoreStatisticsService.addUserStatisticsScore(scoreMap);
+            }
         }
         //Map useScoreMap = memScoreStatisticsService.getUserScore(queryMap);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        java.util.Date date = df.parse("2020-01-01 00:00:00");
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        long timestamp = cal.getTimeInMillis();
+        System.out.println(timestamp);
+
+        /*DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date();
+        date.setTime(1577807999000L);
+        String str = df.format(date);
+        System.out.println(str);*/
 
     }
 

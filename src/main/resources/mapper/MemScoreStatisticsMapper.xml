@@ -42,14 +42,23 @@
             <if test="typeName != null and typeName != ''">
                 and typeName = #{typeName}
             </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+            <if test="year != null and year != ''">
+                and year = #{year}
+            </if>
         </where>
     </select>
 
     <select id="updateUserStatisticsScores" parameterType="map" resultType="map">
         update user_statistics_score
         <set>
-            <if test="totalScore != null">total_score = #{totalScore}</if>
-            <if test="passmark != null">passmark = #{passmark}</if>
+            <if test="totalScore != null">total_score = #{totalScore},</if>
+            <if test="passmark != null">passmark = #{passmark},</if>
+            <if test="passmark != null">passnum = #{passnum},</if>
+            <if test="passmark != null">totalnum = #{totalnum},</if>
+            <if test="passmark != null">ispass = #{ispass},</if>
         </set>
         where
             1 = 1
@@ -109,10 +118,13 @@
 
     <select id="getMemberCourse"  parameterType="map" resultType="map">
         select cm.courseId,c.giveCredit from course c LEFT JOIN course_member cm on c.id = cm.courseId
+        LEFT JOIN course_expriy ce on cm.courseId = ce.courseId
         <where>
             1 = 1
             <if test="type != null">and c.buyable = #{type}</if>
             <if test="userId != null">and cm.userId = #{userId}</if>
+            <!--<if test="beginTime != null"><![CDATA[ and ce.expiryTime >= #{beginTime} ]]></if>-->
+            <if test="endTime != null"><![CDATA[ and ce.expiryTime <= #{endTime} ]]></if>
         </where>
     </select>
 
@@ -127,8 +139,37 @@
         and courseId = #{courseId} and year = #{year}
     </select>
 
+    <select id="getUserTotalScore"  parameterType="map" resultType="map">
+        select userId,sum(total_score) score from user_statistics_score
+        where userId = #{userId} and year = #{year}
+    </select>
 
+    <insert id="addUserResult"  parameterType="map">
+        insert into user_result(
+            userId,
+            status,
+            year
+        )
+        values(
+            #{userId},
+            #{status},
+            #{year}
+        )
+    </insert>
 
+    <select id="getUserResult"  parameterType="map" resultType="map">
+        select * from user_result where userId = #{userId} and year = #{year}
+    </select>
+
+   <update id="updateUserResult" parameterType="map">
+
+       update user_result
+       <set>
+           <if test="status != null">status = #{status},</if>
+       </set>
+       where 1 = 1 and userId = #{userId}
+       and year = #{year}
+   </update>
 
 
 </mapper>

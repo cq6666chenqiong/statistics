@@ -38,4 +38,12 @@ public interface MemScoreStatisticsDao {
     List<Map<String,String>> getAllUser();
 
     Map<String,String> getMemberCourseScore(Map queryMap);
+
+    Map<String, String> getUserTotalScore(Map queryMap);
+
+    void addUserResult(Map map);
+
+    List<Map<String, String>> getUserResult(Map map);
+
+    void updateUserResult(Map map);
 }
