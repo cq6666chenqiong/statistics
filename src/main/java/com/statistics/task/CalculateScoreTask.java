@@ -7,6 +7,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Component
@@ -18,9 +20,21 @@ public class CalculateScoreTask {
     private BigDecimal standardScore = new BigDecimal(1);
 
     @Scheduled(cron = "* 0/5 * * * ?")
-    public void run(){
+    public void run() throws Exception {
         System.out.println("start=================task");
         Date date = new Date();
+        SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
+        String time = sd.format(date);
+        String year = time.split("-")[0];
+
+        Date beginDate = sd.parse(year + "-01-01 00:00:00");
+        Date endDate = sd.parse(year + "-12-31 23:59:59");
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(beginDate);
+        long beginTime = cal.getTimeInMillis()/1000;
+        cal.setTime(endDate);
+        long endTime = cal.getTimeInMillis()/1000;
+
         List<Map> endemicArealist = memScoreStatisticsService.getEndemicArea();
         List<Map> professionnallist = memScoreStatisticsService.getProfessionalGroup();
         Map<Integer,String> professionnalMap = new HashMap<Integer,String>();
@@ -52,27 +66,28 @@ public class CalculateScoreTask {
             String userId = StringUtil.getString(map.get("id"));
             String groups = map.get("professional_groups");
             List<Map> userScoreList = memScoreStatisticsService.getUserStatisticsScores(map);
-            calculateScore(professionnalMap,levelMap,map,professionnalNameMap,levelNameMap,date);
+            System.out.println("==================calculateScore==========================");
+            calculateScore(professionnalMap,levelMap,map,professionnalNameMap,levelNameMap,beginTime,endTime,year);
         }
-        calculatePass();
-        calculateResult();
+        calculatePass(year);
+        calculateResult(year,beginTime,endTime);
 
         System.out.println("end=================task");
     }
 
 
-    public void calculateResult(){
+    public void calculateResult(String year,long beginTime,long endTime){
         List<Map<String,String>> userList = memScoreStatisticsService.getAllUser();
         for(int i=0;i<userList.size();i++) {
             Map<String, String> user = userList.get(i);
             String userId = StringUtil.getString(user.get("id"));
             Map queryMap = new HashMap();
             queryMap.put("userId", userId);
-            queryMap.put("year", "2019");
+            queryMap.put("year", year);
             Map<String, String> score = memScoreStatisticsService.getUserTotalScore(queryMap);
 
-            queryMap.put("beginTime", 1546272000L);
-            queryMap.put("endTime", 1577808000L);
+            queryMap.put("beginTime", beginTime);
+            queryMap.put("endTime", endTime);
 
             //获取用户当前年份所学的课程
             List<Map> list = memScoreStatisticsService.getUserStatisticsScores(queryMap);
@@ -119,7 +134,7 @@ public class CalculateScoreTask {
         }
     }
 
-    public void calculatePass(){
+    public void calculatePass(String year){
         Map queryMap = new HashMap();
         List<Map> userScoreList = memScoreStatisticsService.getUserStatisticsScores(queryMap);
 
@@ -157,7 +172,7 @@ public class CalculateScoreTask {
             Map updateMap = new HashMap();
             updateMap.put("userId",userId);
             updateMap.put("type",type);
-            updateMap.put("year","2019");
+            updateMap.put("year",year);
             updateMap.put("passmark",passmark);
             updateMap.put("totalnum",learnCount);
             updateMap.put("passnum",passCount);
@@ -168,13 +183,13 @@ public class CalculateScoreTask {
     }
 
 
-    public void calculateScore(Map<Integer,String> professionnalMap,Map<Integer,String> levelMap,Map<String,String> member,Map<String,Integer> professionnalNameMap,Map<String,Integer> levelNameMap,Date date){
+    public void calculateScore(Map<Integer,String> professionnalMap,Map<Integer,String> levelMap,Map<String,String> member,Map<String,Integer> professionnalNameMap,Map<String,Integer> levelNameMap,long beginTime,long endTime,String year){
         String userId = StringUtil.getString(member.get("id"));
         Integer cengji = Integer.valueOf(StringUtil.getString(member.get("cengji")).trim());
         Map queryMap = new HashMap();
         queryMap.put("userId",userId);
-        queryMap.put("beginTime",1546272000L);
-        queryMap.put("endTime",1577808000L);
+        queryMap.put("beginTime",beginTime);
+        queryMap.put("endTime",endTime);
         /* coureMap.put("userId",userId);
         coureMap.put("type",type);*/
         String groups = StringUtil.getString(member.get("professional_groups"));
@@ -189,6 +204,7 @@ public class CalculateScoreTask {
         set.add(cengji);
         //获取用户当前年份所学的课程
         List<Map> list = memScoreStatisticsService.getMemberCourse(queryMap);
+        System.out.println(userId+"==有======"+list.size()+"个==========="+beginTime+"===="+endTime);
         Map<Integer,Map> fenMap = new HashMap<Integer,Map>();
         for(int i=0;i<list.size();i++){
             //System.out.println("==================go on =========================="+userId);
@@ -201,7 +217,7 @@ public class CalculateScoreTask {
             if(courseType.equals("")) continue;
             Integer ct = Integer.valueOf(courseType);
             queryMap.put("userId",userId);
-            queryMap.put("year","2019");
+            queryMap.put("year",year);
             queryMap.put("courseId",courseId);
             Map<String,String> courseScore = memScoreStatisticsService.getMemberCourseScore(queryMap);
             String courseTypeName = "";
@@ -231,7 +247,7 @@ public class CalculateScoreTask {
                 fMap.put("type",ct);
                 fMap.put("typeName",courseTypeName);
                 fMap.put("totalScore",s);
-                fMap.put("year","2019");
+                fMap.put("year",year);
                 fMap.put("nickname",member.get("nickname"));
                 fMap.put("endemicArea",member.get("endemic_area"));
 
@@ -274,12 +290,12 @@ public class CalculateScoreTask {
             Integer key = is.next();
             Map scoreMap =fenMap.get(key);
             List userScores = memScoreStatisticsService.getUserStatisticsScores(scoreMap);
-            System.out.println("个数"+userScores.size());
+            //System.out.println("个数"+userScores.size());
             if(userScores != null && userScores.size() > 0){
-                System.out.println("修改");
+                //System.out.println("修改");
                 memScoreStatisticsService.updateUserStatisticsScores(scoreMap);
             }else{
-                System.out.println("增加");
+                //System.out.println("增加");
                 memScoreStatisticsService.addUserStatisticsScore(scoreMap);
             }
         }

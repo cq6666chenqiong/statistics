@@ -123,7 +123,7 @@
             1 = 1
             <if test="type != null">and c.buyable = #{type}</if>
             <if test="userId != null">and cm.userId = #{userId}</if>
-            <!--<if test="beginTime != null"><![CDATA[ and ce.expiryTime >= #{beginTime} ]]></if>-->
+            <if test="beginTime != null"><![CDATA[ and ce.expiryTime >= #{beginTime} ]]></if>
             <if test="endTime != null"><![CDATA[ and ce.expiryTime <= #{endTime} ]]></if>
         </where>
     </select>
