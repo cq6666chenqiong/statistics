@@ -1,7 +1,10 @@
 package com.statistics.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.statistics.service.statistics.MemScoreStatisticsService;
 import com.statistics.util.StringUtil;
+import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.hssf.util.HSSFColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +12,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.util.*;
 
 @Controller
@@ -98,5 +104,77 @@ public class EndemicAreaStatisticsController {
                 memScoreStatisticsService.addUserResult(map);
             }*/
         }
+    }
+
+    @RequestMapping(value = "/getEndemicAreaStatistics")
+    @ResponseBody
+    public String getEndemicAreaStatistics(){
+        List<Map<String,String>> resultList = new ArrayList<Map<String,String>>();
+        List<Map> endemicArealist = memScoreStatisticsService.getEndemicArea();
+        List<Map> professionnallist = memScoreStatisticsService.getProfessionalGroup();
+        Map<Integer,String> professionnalMap = new HashMap<Integer,String>();
+        Map<String,Integer> professionnalNameMap = new HashMap<String,Integer>();
+        for(int i=0;i<professionnallist.size();i++){
+            Map map = professionnallist.get(i);
+            professionnalMap.put(Integer.valueOf(StringUtil.getString(map.get("group_no"))),StringUtil.getString(map.get("pgroup")));
+            professionnalNameMap.put(StringUtil.getString(map.get("pgroup")),Integer.valueOf(StringUtil.getString(map.get("group_no"))));
+        }
+        for(int i=0;i<professionnallist.size();i++){
+            Map map = professionnallist.get(i);
+            professionnalMap.put(Integer.valueOf(StringUtil.getString(map.get("group_no"))),StringUtil.getString(map.get("pgroup")));
+        }
+        List<Map> levellist = memScoreStatisticsService.getlevels();
+        Map<Integer,String> levelMap = new HashMap<Integer,String>();
+        Map<String,Integer> levelNameMap = new HashMap<String,Integer>();
+        for(int i=0;i<levellist.size();i++){
+            Map map = levellist.get(i);
+            levelMap.put(Integer.valueOf(StringUtil.getString(map.get("id"))),StringUtil.getString(map.get("title")));
+        }
+        for(int i=0;i<levellist.size();i++){
+            Map map = levellist.get(i);
+            levelNameMap.put(StringUtil.getString(map.get("title")),Integer.valueOf(StringUtil.getString(map.get("id"))));
+        }
+
+
+        for(int i = 0;i<endemicArealist.size();i++){
+            Map<String,String> resultmap = new HashMap<String,String>();
+            Map map = endemicArealist.get(i);
+            String area = StringUtil.getString(map.get("area"));
+            String year = "2019";
+            Map queryMap = new HashMap();
+            queryMap.put("year",year);
+            queryMap.put("area",area);
+            List userScores = memScoreStatisticsService.getUserStatisticsScores(queryMap);
+            System.out.print(area+"       "+userScores.size());
+            Iterator<Integer> levelits = levelMap.keySet().iterator();
+            resultmap.put("area",area);
+            while(levelits.hasNext()){
+                Integer type = levelits.next();
+                queryMap.put("type",type);
+                queryMap.put("ispass",0);
+                List userScoresLevela = memScoreStatisticsService.getUserStatisticsScores(queryMap);
+                queryMap.put("ispass",1);
+                List userScoresLevelb = memScoreStatisticsService.getUserStatisticsScores(queryMap);
+                System.out.print("       "+userScoresLevelb.size()+"/"+(userScoresLevela.size()+userScoresLevelb.size()));
+                resultmap.put(type+"",userScoresLevelb.size()+"/"+(userScoresLevela.size()+userScoresLevelb.size()));
+            }
+
+            Iterator<Integer> professionnalits = professionnalMap.keySet().iterator();
+            while(professionnalits.hasNext()){
+                Integer type = professionnalits.next();
+                queryMap.put("type",type);
+                queryMap.put("ispass",0);
+                List userScoresProa = memScoreStatisticsService.getUserStatisticsScores(queryMap);
+                queryMap.put("ispass",1);
+                List userScoresProb = memScoreStatisticsService.getUserStatisticsScores(queryMap);
+                System.out.print("       "+userScoresProb.size()+"/"+(userScoresProa.size() + userScoresProb.size()));
+                resultmap.put(type+"",userScoresProb.size()+"/"+(userScoresProa.size() + userScoresProb.size()));
+            }
+            resultList.add(resultmap);
+            System.out.println();
+        }
+
+        return JSON.toJSONString(resultList);
+
     }
 }

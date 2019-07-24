@@ -19,7 +19,7 @@ public class CalculateScoreTask {
 
     private BigDecimal standardScore = new BigDecimal(1);
 
-    /*@Scheduled(cron = "* 0/5 * * * ?")*/
+   /* @Scheduled(cron = "* 0/5 * * * ?")*/
     public void run() throws Exception {
         System.out.println("start=================task");
         Date date = new Date();

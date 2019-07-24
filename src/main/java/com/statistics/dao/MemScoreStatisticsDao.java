@@ -46,4 +46,6 @@ public interface MemScoreStatisticsDao {
     List<Map<String, String>> getUserResult(Map map);
 
     void updateUserResult(Map map);
+
+    List<Map<String, String>> getUserByPage(Map userQqueryMap);
 }

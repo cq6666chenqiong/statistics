@@ -120,4 +120,9 @@ public class MemScoreStatisticsServiceImpl implements MemScoreStatisticsService 
     public void updateUserResult(Map map) {
         memScoreStatisticsDao.updateUserResult(map);
     }
+
+    @Override
+    public List<Map<String, String>> getUserByPage(Map userQqueryMap) {
+        return memScoreStatisticsDao.getUserByPage(userQqueryMap);
+    }
 }

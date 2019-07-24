@@ -48,6 +48,12 @@
             <if test="year != null and year != ''">
                 and year = #{year}
             </if>
+            <if test="area != null and area != ''">
+                and endemic_area = #{area}
+            </if>
+            <if test="ispass != null and ispass != ''">
+                and ispass = #{ispass}
+            </if>
         </where>
     </select>
 
@@ -133,6 +139,16 @@
         IF ( up.varcharField4='' , '其他' , up.varcharField4 ) professional_groups,company cengji
         from user u LEFT JOIN user_profile up on u.id = up.id
     </select>
+
+    <select id="getUserByPage"  parameterType="map" resultType="map">
+        select * from (
+            select u.id,u.nickname,up.varcharField3 endemic_area,up.truename truename,
+            IF ( up.varcharField4='' , '其他' , up.varcharField4 ) professional_groups,company cengji
+            from user u LEFT JOIN user_profile up on u.id = up.id
+            order by u.id asc
+        ) a limit #{onpage},#{endpage}
+    </select>
+
 
     <select id="getMemberCourseScore"  parameterType="map" resultType="map">
         select courseId,sum(score) score from user_score where userId = #{userId}

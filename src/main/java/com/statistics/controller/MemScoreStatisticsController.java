@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.statistics.service.statistics.MemScoreStatisticsService;
 import com.statistics.util.StringUtil;
 
+import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.hssf.util.HSSFColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +14,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 
 
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -36,6 +43,90 @@ public class MemScoreStatisticsController {
         List<Map> list = memScoreStatisticsService.getEndemicArea();
         String result = JSON.toJSONString(list);
         return result;
+    }
+
+    @RequestMapping(value = "/getMemberScoreStatistics")
+    @ResponseBody
+    public String getMemberScoreStatistics(HttpServletRequest request, HttpServletResponse response){
+
+        Integer onpage = request.getParameter("onpage") == null ? 0 : Integer.valueOf(request.getParameter("onpage"));
+        Integer endpage = onpage*50 + 50;
+
+        Map userQqueryMap = new HashMap();
+        userQqueryMap.put("onpage",onpage);
+        userQqueryMap.put("endpage",endpage);
+        List<Map<String,String>> userList = memScoreStatisticsService.getUserByPage(userQqueryMap);
+
+        //List<Map<String,String>> userList = memScoreStatisticsService.getAllUser();
+        List<Map<String,Object>> userScoreList = new ArrayList<Map<String,Object>>();
+
+        for(int i=0;i<userList.size();i++){
+            List<Map<String,String>> levelList = new ArrayList<Map<String,String>>();
+            List<Map<String,String>> professionList = new ArrayList<Map<String,String>>();
+            Map<String,String> userMap = userList.get(i);
+            String userId = StringUtil.getString(userMap.get("id"));
+            String truename = StringUtil.getString(userMap.get("truename"));
+            String nickname = StringUtil.getString(userMap.get("nickname"));
+            String ispass = "未通过";
+            Map queryMap = new HashMap();
+            queryMap.put("userId",userId);
+            queryMap.put("year","2019");
+            List<Map> list = memScoreStatisticsService.getUserStatisticsScores(queryMap);
+            for(int j=0;j<list.size();j++){
+                Map scoreMap = list.get(j);
+                Integer type = Integer.valueOf(StringUtil.getString(scoreMap.get("type")));
+                if(type < 35){
+                    if(Integer.valueOf(StringUtil.getString(scoreMap.get("ispass"))) == 0){
+                        scoreMap.put("ispass","未通过");
+                    }else{
+                        scoreMap.put("ispass","通过");
+                    }
+                    levelList.add(scoreMap);
+                }else{
+                    if(Integer.valueOf(StringUtil.getString(scoreMap.get("ispass"))) == 0){
+                        scoreMap.put("ispass","未通过");
+                    }else{
+                        scoreMap.put("ispass","通过");
+                    }
+                    professionList.add(scoreMap);
+                }
+            }
+            if(levelList.size() == 0){
+                Map<String,String> umap = new HashMap<String,String>();
+                umap.put("typeName","层级课程");
+                umap.put("passmark","0/0");
+                umap.put("ispass","未通过");
+                umap.put("total_score","0");
+                levelList.add(umap);
+            }
+            if(professionList.size() == 0){
+                Map<String,String> umap = new HashMap<String,String>();
+                umap.put("typeName","专业课程");
+                umap.put("passmark","0/0");
+                umap.put("ispass","未通过");
+                umap.put("total_score","0");
+                professionList.add(umap);
+            }
+            List<Map<String,String>> userResult = memScoreStatisticsService.getUserResult(queryMap);
+            if(userResult != null && userResult.size() > 0){
+                Map<String,String> result = userResult.get(0);
+                if(StringUtil.getString(result.get("status")).equals("1")) ispass = "通过";
+
+            }
+            Map<String,Object> userScoreMap = new HashMap<String,Object>();
+            userScoreMap.put("userId",userId);
+            userScoreMap.put("truename",truename);
+            userScoreMap.put("levelList",levelList);
+            userScoreMap.put("professionList",professionList);
+            userScoreMap.put("ispass",ispass);
+            userScoreMap.put("nickname",nickname);
+
+            userScoreList.add(userScoreMap);
+        }
+
+
+        return JSONObject.toJSONString(userScoreList);
+
     }
 
     @RequestMapping(value = "/getMemberStatistics")

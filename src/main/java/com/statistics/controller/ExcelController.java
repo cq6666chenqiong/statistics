@@ -15,10 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @RequestMapping(value = "/statistics")
@@ -68,6 +65,7 @@ public class ExcelController {
                 umap.put("typeName","层级课程");
                 umap.put("passmark","0/0");
                 umap.put("ispass","未通过");
+                umap.put("total_score","0");
                 levelList.add(umap);
             }
             if(professionList.size() == 0){
@@ -75,6 +73,7 @@ public class ExcelController {
                 umap.put("typeName","专业课程");
                 umap.put("passmark","0/0");
                 umap.put("ispass","未通过");
+                umap.put("total_score","0");
                 professionList.add(umap);
             }
             List<Map<String,String>> userResult = memScoreStatisticsService.getUserResult(queryMap);
@@ -95,13 +94,19 @@ public class ExcelController {
         }
         HSSFWorkbook wb = new HSSFWorkbook();
         HSSFSheet sheet = wb.createSheet("学生成绩统计");
+        sheet.setDefaultColumnWidth((short)20);
+        //sheet.setDefaultRowHeight((short)600);
         // 第三步，在sheet中添加表头第0行,注意老版本poi对Excel的行数列数有限制short
         HSSFCellStyle styleGreen = wb.createCellStyle();
         styleGreen.setAlignment(HSSFCellStyle.ALIGN_CENTER); // 创建一个居中格式
         styleGreen.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
         styleGreen.setFillForegroundColor(HSSFColor.GREEN.index);
 
+        HSSFCellStyle styleCentor = wb.createCellStyle();
+        styleCentor.setAlignment(HSSFCellStyle.ALIGN_CENTER); // 创建一个居中格式
+
         HSSFRow row = sheet.createRow((int) 0);
+
         HSSFCell cell = row.createCell((short) 0);
         cell.setCellValue("员工号");
         cell.setCellStyle(styleGreen);
@@ -123,28 +128,34 @@ public class ExcelController {
             //System.out.println(JSON.toJSONString(userScoreList.get(i)));
             Map<String,Object> map = userScoreList.get(i);
             row = sheet.createRow((int) 1 + i);
+            row.setHeight((short)900);
             cell = row.createCell((short) 0);
             cell.setCellValue(StringUtil.getString(map.get("nickname")));
+            cell.setCellStyle(styleCentor);
             cell = row.createCell((short) 1);
             cell.setCellValue(StringUtil.getString(map.get("truename")));
+            cell.setCellStyle(styleCentor);
             cell = row.createCell((short) 2);
             List<Map<String,String>> l = (List<Map<String,String>>)map.get("levelList");
             String le = "";
             for(int j=0;j<l.size();j++){
                 Map<String,String> lmap = l.get(j);
-                le = le + StringUtil.getString(lmap.get("typeName")) + "       " + StringUtil.getString(lmap.get("passmark")) + "       " + StringUtil.getString(lmap.get("ispass")) + "\r\n";
+                le = le + StringUtil.getString(lmap.get("typeName")) + "       " + StringUtil.getString(lmap.get("passmark")) + "       " + StringUtil.getString(lmap.get("total_score")) + "\r\n";
             }
             cell.setCellValue(le);
+            cell.setCellStyle(styleCentor);
             String pr = "";
             List<Map<String,String>> p = (List<Map<String,String>>)map.get("professionList");
             for(int j=0;j<p.size();j++){
                 Map<String,String> pmap = p.get(j);
-                pr = pr + StringUtil.getString(pmap.get("typeName")) + "       " + StringUtil.getString(pmap.get("passmark")) + "       " + StringUtil.getString(pmap.get("ispass")) + "\r\n";
+                pr = pr + StringUtil.getString(pmap.get("typeName")) + "       " + StringUtil.getString(pmap.get("passmark")) + "       " + StringUtil.getString(pmap.get("total_score")) + "\r\n";
             }
             cell = row.createCell((short) 3);
             cell.setCellValue(pr);
+            cell.setCellStyle(styleCentor);
             cell = row.createCell((short) 4);
             cell.setCellValue( StringUtil.getString(map.get("ispass")));
+            cell.setCellStyle(styleCentor);
         }
 
         // 第六步，将文件存到指定位置
@@ -168,7 +179,138 @@ public class ExcelController {
     }
 
     @RequestMapping(value = "/getEndemicAreaExcel")
-    public void getEndemicAreaExcel(){
+    public void getEndemicAreaExcel(HttpServletRequest request, HttpServletResponse response){
+        List<Map> endemicArealist = memScoreStatisticsService.getEndemicArea();
+        List<Map> professionnallist = memScoreStatisticsService.getProfessionalGroup();
+        Map<Integer,String> professionnalMap = new HashMap<Integer,String>();
+        Map<String,Integer> professionnalNameMap = new HashMap<String,Integer>();
+        for(int i=0;i<professionnallist.size();i++){
+            Map map = professionnallist.get(i);
+            professionnalMap.put(Integer.valueOf(StringUtil.getString(map.get("group_no"))),StringUtil.getString(map.get("pgroup")));
+            professionnalNameMap.put(StringUtil.getString(map.get("pgroup")),Integer.valueOf(StringUtil.getString(map.get("group_no"))));
+        }
+        for(int i=0;i<professionnallist.size();i++){
+            Map map = professionnallist.get(i);
+            professionnalMap.put(Integer.valueOf(StringUtil.getString(map.get("group_no"))),StringUtil.getString(map.get("pgroup")));
+        }
+        List<Map> levellist = memScoreStatisticsService.getlevels();
+        Map<Integer,String> levelMap = new HashMap<Integer,String>();
+        Map<String,Integer> levelNameMap = new HashMap<String,Integer>();
+        for(int i=0;i<levellist.size();i++){
+            Map map = levellist.get(i);
+            levelMap.put(Integer.valueOf(StringUtil.getString(map.get("id"))),StringUtil.getString(map.get("title")));
+        }
+        for(int i=0;i<levellist.size();i++){
+            Map map = levellist.get(i);
+            levelNameMap.put(StringUtil.getString(map.get("title")),Integer.valueOf(StringUtil.getString(map.get("id"))));
+        }
+
+        HSSFWorkbook wb = new HSSFWorkbook();
+        HSSFSheet sheet = wb.createSheet("病区成绩统计");
+        sheet.setDefaultColumnWidth((short)20);
+        //sheet.setDefaultRowHeight((short)600);
+        // 第三步，在sheet中添加表头第0行,注意老版本poi对Excel的行数列数有限制short
+        HSSFCellStyle styleGreen = wb.createCellStyle();
+        styleGreen.setAlignment(HSSFCellStyle.ALIGN_CENTER); // 创建一个居中格式
+        styleGreen.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+        styleGreen.setFillForegroundColor(HSSFColor.GREEN.index);
+
+        HSSFCellStyle styleCentor = wb.createCellStyle();
+        styleCentor.setAlignment(HSSFCellStyle.ALIGN_CENTER); // 创建一个居中格式
+
+        HSSFRow row = sheet.createRow((int) 0);
+
+        HSSFCell cell = row.createCell((short) 0);
+        cell.setCellValue("病区");
+        cell.setCellStyle(styleGreen);
+
+
+        int c = 1;
+        Iterator<Integer> leveltitleits = levelMap.keySet().iterator();
+        while(leveltitleits.hasNext()){
+            int key = leveltitleits.next();
+            String name = levelMap.get(key);
+            cell = row.createCell((short) c);
+            cell.setCellValue(name);
+            cell.setCellStyle(styleGreen);
+            c++;
+        }
+        Iterator<Integer> professionnaltitleits = professionnalMap.keySet().iterator();
+        while(professionnaltitleits.hasNext()){
+            int key = professionnaltitleits.next();
+            String name = professionnalMap.get(key);
+            cell = row.createCell((short) c);
+            cell.setCellValue(name);
+            cell.setCellStyle(styleGreen);
+            c++;
+        }
+
+
+        for(int i = 0;i<endemicArealist.size();i++){
+            int colum = 0;
+            row = sheet.createRow((int) i+1);
+            Map map = endemicArealist.get(i);
+            String area = StringUtil.getString(map.get("area"));
+            String year = "2019";
+            Map queryMap = new HashMap();
+            queryMap.put("year",year);
+            queryMap.put("area",area);
+            List userScores = memScoreStatisticsService.getUserStatisticsScores(queryMap);
+            System.out.print(area+"       "+userScores.size());
+            Iterator<Integer> levelits = levelMap.keySet().iterator();
+            cell = row.createCell((short) colum);
+            cell.setCellValue(area);
+            colum++;
+            while(levelits.hasNext()){
+                cell = row.createCell((short) colum);
+                Integer type = levelits.next();
+                queryMap.put("type",type);
+                queryMap.put("ispass",0);
+                List userScoresLevela = memScoreStatisticsService.getUserStatisticsScores(queryMap);
+                queryMap.put("ispass",1);
+                List userScoresLevelb = memScoreStatisticsService.getUserStatisticsScores(queryMap);
+
+                // System.out.print("       "+userScoresLevelb.size()+"/"+(userScoresLevela.size()+userScoresLevelb.size()));
+                cell.setCellValue(userScoresLevelb.size()+"/"+(userScoresLevela.size()+userScoresLevelb.size()));
+                colum++;
+            }
+
+            Iterator<Integer> professionnalits = professionnalMap.keySet().iterator();
+            while(professionnalits.hasNext()){
+                cell = row.createCell((short) colum);
+                Integer type = professionnalits.next();
+                queryMap.put("type",type);
+                queryMap.put("ispass",0);
+                List userScoresProa = memScoreStatisticsService.getUserStatisticsScores(queryMap);
+                queryMap.put("ispass",1);
+                List userScoresProb = memScoreStatisticsService.getUserStatisticsScores(queryMap);
+                System.out.print("       "+userScoresProb.size()+"/"+(userScoresProa.size() + userScoresProb.size()));
+                cell.setCellValue(userScoresProb.size()+"/"+(userScoresProa.size()+userScoresProb.size()));
+                colum++;
+            }
+
+            System.out.println();
+        }
+
+        // 第六步，将文件存到指定位置
+        OutputStream out = null;
+        try {
+            out = response.getOutputStream();
+            String fileName = "病区成绩统计.xls";// 文件名
+            response.setContentType("application/x-msdownload");
+            response.setHeader("Content-Disposition", "attachment; filename="
+                    + URLEncoder.encode(fileName, "UTF-8"));
+            wb.write(out);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
 
     }
 }
