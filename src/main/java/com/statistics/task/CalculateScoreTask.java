@@ -19,7 +19,7 @@ public class CalculateScoreTask {
 
     private BigDecimal standardScore = new BigDecimal(1);
 
-   /* @Scheduled(cron = "* 0/5 * * * ?")*/
+   @Scheduled(cron = "* 0/5 * * * ?")
     public void run() throws Exception {
         System.out.println("start=================task");
         Date date = new Date();
@@ -107,10 +107,12 @@ public class CalculateScoreTask {
                 ispass = false;
             }
 
+
             if (ispass) {
                 Map map = new HashMap();
                 map.put("userId", userId);
                 map.put("status", 1);
+                map.put("total_score", sumScore);
                 map.put("year", "2019");
                 List<Map<String, String>> resultlist = memScoreStatisticsService.getUserResult(map);
                 if (resultlist != null && resultlist.size() > 0) {
@@ -123,6 +125,7 @@ public class CalculateScoreTask {
                 Map map = new HashMap();
                 map.put("userId", userId);
                 map.put("status", 0);
+                map.put("total_score", sumScore);
                 map.put("year", "2019");
                 List<Map<String, String>> resultlist = memScoreStatisticsService.getUserResult(map);
                 if (resultlist != null && resultlist.size() > 0) {
@@ -164,8 +167,6 @@ public class CalculateScoreTask {
                 }
             }
             if(learnCount == passCount && learnCount > 0 && passCount > 0){
-
-                System.out.println("ispass==="+ispass);
                 ispass = 1;
             }
             String passmark = passCount + "/" + learnCount;

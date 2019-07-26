@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -235,6 +236,12 @@ public class ExcelController {
             cell.setCellStyle(styleGreen);
             c++;
         }
+
+        cell = row.createCell((short) c);
+        cell.setCellValue("总分合格率");
+        cell.setCellStyle(styleGreen);
+        c++;
+
         Iterator<Integer> professionnaltitleits = professionnalMap.keySet().iterator();
         while(professionnaltitleits.hasNext()){
             int key = professionnaltitleits.next();
@@ -244,6 +251,12 @@ public class ExcelController {
             cell.setCellStyle(styleGreen);
             c++;
         }
+
+        cell = row.createCell((short) c);
+        cell.setCellValue("专业组合格率");
+        cell.setCellStyle(styleGreen);
+
+
 
 
         for(int i = 0;i<endemicArealist.size();i++){
@@ -261,6 +274,8 @@ public class ExcelController {
             cell = row.createCell((short) colum);
             cell.setCellValue(area);
             colum++;
+            Integer a = 0;
+            Integer b = 0;
             while(levelits.hasNext()){
                 cell = row.createCell((short) colum);
                 Integer type = levelits.next();
@@ -272,8 +287,21 @@ public class ExcelController {
 
                 // System.out.print("       "+userScoresLevelb.size()+"/"+(userScoresLevela.size()+userScoresLevelb.size()));
                 cell.setCellValue(userScoresLevelb.size()+"/"+(userScoresLevela.size()+userScoresLevelb.size()));
+                a = a + userScoresLevelb.size();
+                b = b + userScoresLevela.size() + userScoresLevelb.size();
                 colum++;
             }
+
+            cell = row.createCell((short) colum);
+            if(b==0){
+                cell.setCellValue("0.00%");
+            }else{
+                cell.setCellValue(new BigDecimal(a).divide(new BigDecimal(b),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP)+"%");
+            }
+            colum++;
+
+            a = 0;
+            b = 0;
 
             Iterator<Integer> professionnalits = professionnalMap.keySet().iterator();
             while(professionnalits.hasNext()){
@@ -286,7 +314,16 @@ public class ExcelController {
                 List userScoresProb = memScoreStatisticsService.getUserStatisticsScores(queryMap);
                 System.out.print("       "+userScoresProb.size()+"/"+(userScoresProa.size() + userScoresProb.size()));
                 cell.setCellValue(userScoresProb.size()+"/"+(userScoresProa.size()+userScoresProb.size()));
+                a = a + userScoresProb.size();
+                b = b + userScoresProa.size() + userScoresProb.size();
                 colum++;
+            }
+
+            cell = row.createCell((short) colum);
+            if(b==0){
+                cell.setCellValue("0.00%");
+            }else{
+                cell.setCellValue(new BigDecimal(a).divide(new BigDecimal(b),2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP)+"%");
             }
 
             System.out.println();

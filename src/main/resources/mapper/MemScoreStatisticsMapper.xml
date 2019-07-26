@@ -164,11 +164,13 @@
         insert into user_result(
             userId,
             status,
+            total_score,
             year
         )
         values(
             #{userId},
             #{status},
+            #{total_score},
             #{year}
         )
     </insert>
@@ -182,6 +184,7 @@
        update user_result
        <set>
            <if test="status != null">status = #{status},</if>
+           <if test="total_score != null">total_score = #{total_score},</if>
        </set>
        where 1 = 1 and userId = #{userId}
        and year = #{year}

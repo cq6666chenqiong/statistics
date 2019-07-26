@@ -49,11 +49,11 @@ public class MemScoreStatisticsController {
     @ResponseBody
     public String getMemberScoreStatistics(HttpServletRequest request, HttpServletResponse response){
 
-        Integer onpage = request.getParameter("onpage") == null ? 0 : Integer.valueOf(request.getParameter("onpage"));
-        Integer endpage = onpage*50 + 50;
-
+        Integer onpage = request.getParameter("start") == null ? 1 : Integer.valueOf(request.getParameter("start"));
+        Integer endpage = (onpage-1)*50 + 50;
+        System.out.println(onpage);
         Map userQqueryMap = new HashMap();
-        userQqueryMap.put("onpage",onpage);
+        userQqueryMap.put("onpage",(onpage-1)*50);
         userQqueryMap.put("endpage",endpage);
         List<Map<String,String>> userList = memScoreStatisticsService.getUserByPage(userQqueryMap);
 
@@ -96,7 +96,7 @@ public class MemScoreStatisticsController {
                 umap.put("typeName","层级课程");
                 umap.put("passmark","0/0");
                 umap.put("ispass","未通过");
-                umap.put("total_score","0");
+                umap.put("total_score","0.00");
                 levelList.add(umap);
             }
             if(professionList.size() == 0){
@@ -104,12 +104,14 @@ public class MemScoreStatisticsController {
                 umap.put("typeName","专业课程");
                 umap.put("passmark","0/0");
                 umap.put("ispass","未通过");
-                umap.put("total_score","0");
+                umap.put("total_score","0.00");
                 professionList.add(umap);
             }
             List<Map<String,String>> userResult = memScoreStatisticsService.getUserResult(queryMap);
+            String total_score = "0";
             if(userResult != null && userResult.size() > 0){
                 Map<String,String> result = userResult.get(0);
+                total_score = result.get("total_score");
                 if(StringUtil.getString(result.get("status")).equals("1")) ispass = "通过";
 
             }
@@ -119,6 +121,7 @@ public class MemScoreStatisticsController {
             userScoreMap.put("levelList",levelList);
             userScoreMap.put("professionList",professionList);
             userScoreMap.put("ispass",ispass);
+            userScoreMap.put("total_score",total_score);
             userScoreMap.put("nickname",nickname);
 
             userScoreList.add(userScoreMap);
@@ -128,6 +131,15 @@ public class MemScoreStatisticsController {
         return JSONObject.toJSONString(userScoreList);
 
     }
+    @RequestMapping(value = "/getMemberNum")
+    @ResponseBody
+    public String getMemberNum(){
+        List<Map<String,String>> userList = memScoreStatisticsService.getAllUser();
+        JSONObject json = new JSONObject();
+        json.put("sum",userList.size());
+        return json.toJSONString();
+    }
+
 
     @RequestMapping(value = "/getMemberStatistics")
     @ResponseBody

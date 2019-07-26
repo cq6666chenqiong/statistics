@@ -29,6 +29,8 @@ public class EndemicAreaStatisticsController {
 
     private BigDecimal standardScore = new BigDecimal(1);
 
+
+
     @RequestMapping(value = "/statisticsEveryOneTotalScore")
     @ResponseBody
     public void statisticsEveryOneTotalScore(){
@@ -66,6 +68,7 @@ public class EndemicAreaStatisticsController {
                 Map map = new HashMap();
                 map.put("userId",userId);
                 map.put("status",1);
+                map.put("total_score",sumScore);
                 map.put("year","2019");
                 List<Map<String,String>> resultlist = memScoreStatisticsService.getUserResult(map);
                 if(resultlist != null && resultlist.size() > 0){
@@ -78,6 +81,7 @@ public class EndemicAreaStatisticsController {
                 Map map = new HashMap();
                 map.put("userId",userId);
                 map.put("status",0);
+                map.put("total_score",sumScore);
                 map.put("year","2019");
                 List<Map<String,String>> resultlist = memScoreStatisticsService.getUserResult(map);
                 if(resultlist != null && resultlist.size() > 0){
@@ -135,7 +139,8 @@ public class EndemicAreaStatisticsController {
             levelNameMap.put(StringUtil.getString(map.get("title")),Integer.valueOf(StringUtil.getString(map.get("id"))));
         }
 
-
+        Integer a = 0;
+        Integer b = 0;
         for(int i = 0;i<endemicArealist.size();i++){
             Map<String,String> resultmap = new HashMap<String,String>();
             Map map = endemicArealist.get(i);
@@ -157,7 +162,17 @@ public class EndemicAreaStatisticsController {
                 List userScoresLevelb = memScoreStatisticsService.getUserStatisticsScores(queryMap);
                 System.out.print("       "+userScoresLevelb.size()+"/"+(userScoresLevela.size()+userScoresLevelb.size()));
                 resultmap.put(type+"",userScoresLevelb.size()+"/"+(userScoresLevela.size()+userScoresLevelb.size()));
+                a = a + userScoresLevelb.size();
+                b = b + userScoresLevela.size() + userScoresLevelb.size();
             }
+            if(b==0){
+                resultmap.put("levelresult","0.00%");
+            }else{
+                resultmap.put("levelresult",new BigDecimal(a).divide(new BigDecimal(b),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP)+"%");
+            }
+
+            a = 0;
+            b = 0;
 
             Iterator<Integer> professionnalits = professionnalMap.keySet().iterator();
             while(professionnalits.hasNext()){
@@ -170,6 +185,12 @@ public class EndemicAreaStatisticsController {
                 System.out.print("       "+userScoresProb.size()+"/"+(userScoresProa.size() + userScoresProb.size()));
                 resultmap.put(type+"",userScoresProb.size()+"/"+(userScoresProa.size() + userScoresProb.size()));
             }
+            if(b==0){
+                resultmap.put("professionnalresult","0.00%");
+            }else{
+                resultmap.put("professionnalresult",new BigDecimal(a).divide(new BigDecimal(b),2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP)+"%");
+            }
+
             resultList.add(resultmap);
             System.out.println();
         }
