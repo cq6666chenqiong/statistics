@@ -35,7 +35,7 @@ public interface MemScoreStatisticsService {
 
     Map getUserScoreMessage(Map coureMap);
 
-    List<Map<String,String>> getAllUser();
+    List<Map<String,String>> getAllUser(Map userQqueryMap);
 
     Map<String,String> getMemberCourseScore(Map queryMap);
 

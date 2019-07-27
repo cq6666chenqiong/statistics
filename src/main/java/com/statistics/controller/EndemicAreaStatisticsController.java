@@ -34,7 +34,8 @@ public class EndemicAreaStatisticsController {
     @RequestMapping(value = "/statisticsEveryOneTotalScore")
     @ResponseBody
     public void statisticsEveryOneTotalScore(){
-        List<Map<String,String>> userList = memScoreStatisticsService.getAllUser();
+        Map userQqueryMap = new HashMap();
+        List<Map<String,String>> userList = memScoreStatisticsService.getAllUser(userQqueryMap);
         for(int i=0;i<userList.size();i++){
             Map<String,String> user = userList.get(i);
             String userId = StringUtil.getString(user.get("id"));

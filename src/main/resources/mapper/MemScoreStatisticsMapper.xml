@@ -138,6 +138,12 @@
         select u.id,u.nickname,up.varcharField3 endemic_area,up.truename truename,
         IF ( up.varcharField4='' , '其他' , up.varcharField4 ) professional_groups,company cengji
         from user u LEFT JOIN user_profile up on u.id = up.id
+        <where>
+            1 = 1
+            <if test="truename != null and truename != ''">
+                and up.truename = #{truename}
+            </if>
+        </where>
     </select>
 
     <select id="getUserByPage"  parameterType="map" resultType="map">
@@ -145,6 +151,12 @@
             select u.id,u.nickname,up.varcharField3 endemic_area,up.truename truename,
             IF ( up.varcharField4='' , '其他' , up.varcharField4 ) professional_groups,company cengji
             from user u LEFT JOIN user_profile up on u.id = up.id
+            <where>
+                1 = 1
+                <if test="truename != null and truename != ''">
+                    and up.truename = #{truename}
+                </if>
+            </where>
             order by u.id asc
         ) a limit #{onpage},#{endpage}
     </select>

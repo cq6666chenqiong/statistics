@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -45,16 +46,23 @@ public class MemScoreStatisticsController {
         return result;
     }
 
-    @RequestMapping(value = "/getMemberScoreStatistics")
+    @RequestMapping(value = "/getMemberScoreStatistics",produces="text/html;charset=UTF-8;")
     @ResponseBody
     public String getMemberScoreStatistics(HttpServletRequest request, HttpServletResponse response){
-
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         Integer onpage = request.getParameter("start") == null ? 1 : Integer.valueOf(request.getParameter("start"));
         Integer endpage = (onpage-1)*50 + 50;
-        System.out.println(onpage);
+        String year = StringUtil.getString(request.getParameter("year"));
+        if(year == null || year.equals("")){
+            Date date = new Date();
+            year = df.format(date).split("-")[0];
+        }
+        String tname = request.getParameter("name");
+        System.out.println(tname);
         Map userQqueryMap = new HashMap();
         userQqueryMap.put("onpage",(onpage-1)*50);
         userQqueryMap.put("endpage",endpage);
+        userQqueryMap.put("truename",tname);
         List<Map<String,String>> userList = memScoreStatisticsService.getUserByPage(userQqueryMap);
 
         //List<Map<String,String>> userList = memScoreStatisticsService.getAllUser();
@@ -70,7 +78,7 @@ public class MemScoreStatisticsController {
             String ispass = "未通过";
             Map queryMap = new HashMap();
             queryMap.put("userId",userId);
-            queryMap.put("year","2019");
+            queryMap.put("year",year);
             List<Map> list = memScoreStatisticsService.getUserStatisticsScores(queryMap);
             for(int j=0;j<list.size();j++){
                 Map scoreMap = list.get(j);
@@ -131,10 +139,20 @@ public class MemScoreStatisticsController {
         return JSONObject.toJSONString(userScoreList);
 
     }
-    @RequestMapping(value = "/getMemberNum")
+    @RequestMapping(value = "/getMemberNum",produces="text/html;charset=UTF-8;")
     @ResponseBody
-    public String getMemberNum(){
-        List<Map<String,String>> userList = memScoreStatisticsService.getAllUser();
+    public String getMemberNum(HttpServletRequest request, HttpServletResponse response){
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        String year = StringUtil.getString(request.getParameter("year"));
+        if(year == null || year.equals("")){
+            Date date = new Date();
+            year = df.format(date).split("-")[0];
+        }
+        String tname = request.getParameter("name");
+        System.out.println(tname);
+        Map userQqueryMap = new HashMap();
+        userQqueryMap.put("truename",tname);
+        List<Map<String,String>> userList = memScoreStatisticsService.getAllUser(userQqueryMap);
         JSONObject json = new JSONObject();
         json.put("sum",userList.size());
         return json.toJSONString();
@@ -291,8 +309,17 @@ public class MemScoreStatisticsController {
 
     @RequestMapping(value = "/makeMemberStatistics")
     @ResponseBody
-    public String makeMemberStatistics(){
+    public String makeMemberStatistics(HttpServletRequest request, HttpServletResponse response){
         Date date = new Date();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        Integer onpage = request.getParameter("start") == null ? 1 : Integer.valueOf(request.getParameter("start"));
+        Integer endpage = (onpage-1)*50 + 50;
+        String year = StringUtil.getString(request.getParameter("year"));
+        if(year == null || year.equals("")){
+
+            year = df.format(date).split("-")[0];
+        }
+        String tname = request.getParameter("name");
         List<Map> endemicArealist = memScoreStatisticsService.getEndemicArea();
         List<Map> professionnallist = memScoreStatisticsService.getProfessionalGroup();
         Map<Integer,String> professionnalMap = new HashMap<Integer,String>();
@@ -318,7 +345,9 @@ public class MemScoreStatisticsController {
             levelNameMap.put(StringUtil.getString(map.get("title")),Integer.valueOf(StringUtil.getString(map.get("id"))));
         }
         //System.out.println("==================go on ==========================");
-        List<Map<String,String>> memberList = memScoreStatisticsService.getAllUser();
+        Map userQqueryMap = new HashMap();
+        userQqueryMap.put("truename",tname);
+        List<Map<String,String>> memberList = memScoreStatisticsService.getAllUser(userQqueryMap);
         for(int i=0;i<memberList.size();i++){
             Map<String,String> map = memberList.get(i);
             String userId = StringUtil.getString(map.get("id"));
@@ -363,7 +392,7 @@ public class MemScoreStatisticsController {
             Map updateMap = new HashMap();
             updateMap.put("userId",userId);
             updateMap.put("type",type);
-            updateMap.put("year","2019");
+            updateMap.put("year",year);
             updateMap.put("passmark",passmark);
             updateMap.put("totalnum",learnCount);
             updateMap.put("passnum",passCount);

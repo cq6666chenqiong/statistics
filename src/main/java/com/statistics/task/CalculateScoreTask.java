@@ -19,7 +19,7 @@ public class CalculateScoreTask {
 
     private BigDecimal standardScore = new BigDecimal(1);
 
-   @Scheduled(cron = "* 0/5 * * * ?")
+  /* @Scheduled(cron = "* 0/5 * * * ?")*/
     public void run() throws Exception {
         System.out.println("start=================task");
         Date date = new Date();
@@ -60,7 +60,8 @@ public class CalculateScoreTask {
             levelNameMap.put(StringUtil.getString(map.get("title")),Integer.valueOf(StringUtil.getString(map.get("id"))));
         }
         //System.out.println("==================go on ==========================");
-        List<Map<String,String>> memberList = memScoreStatisticsService.getAllUser();
+        Map userQqueryMap = new HashMap();
+        List<Map<String,String>> memberList = memScoreStatisticsService.getAllUser(userQqueryMap);
         for(int i=0;i<memberList.size();i++){
             Map<String,String> map = memberList.get(i);
             String userId = StringUtil.getString(map.get("id"));
@@ -77,7 +78,8 @@ public class CalculateScoreTask {
 
 
     public void calculateResult(String year,long beginTime,long endTime){
-        List<Map<String,String>> userList = memScoreStatisticsService.getAllUser();
+        Map userQqueryMap = new HashMap();
+        List<Map<String,String>> userList = memScoreStatisticsService.getAllUser(userQqueryMap);
         for(int i=0;i<userList.size();i++) {
             Map<String, String> user = userList.get(i);
             String userId = StringUtil.getString(user.get("id"));

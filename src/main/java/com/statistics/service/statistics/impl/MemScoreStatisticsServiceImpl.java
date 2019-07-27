@@ -91,9 +91,11 @@ public class MemScoreStatisticsServiceImpl implements MemScoreStatisticsService 
         return memScoreStatisticsDao.getUserScoreMessage(coureMap);
     }
 
+
+
     @Override
-    public List<Map<String,String>> getAllUser() {
-        return memScoreStatisticsDao.getAllUser();
+    public List<Map<String,String>> getAllUser(Map userQqueryMap) {
+        return memScoreStatisticsDao.getAllUser(userQqueryMap);
     }
 
     @Override

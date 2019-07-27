@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Controller
@@ -27,7 +28,17 @@ public class ExcelController {
 
     @RequestMapping(value = "/getMemberScoreExcel")
     public void getMemberScoreExcel(HttpServletRequest request, HttpServletResponse response){
-        List<Map<String,String>> userList = memScoreStatisticsService.getAllUser();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        String year = StringUtil.getString(request.getParameter("year"));
+        if(year == null || year.equals("")){
+            Date date = new Date();
+            year = df.format(date).split("-")[0];
+        }
+        String tname = request.getParameter("name");
+        System.out.println(tname);
+        Map userQqueryMap = new HashMap();
+        userQqueryMap.put("truename",tname);
+        List<Map<String,String>> userList = memScoreStatisticsService.getAllUser(userQqueryMap);
         List<Map<String,Object>> userScoreList = new ArrayList<Map<String,Object>>();
 
         for(int i=0;i<userList.size();i++){
@@ -40,7 +51,7 @@ public class ExcelController {
             String ispass = "未通过";
             Map queryMap = new HashMap();
             queryMap.put("userId",userId);
-            queryMap.put("year","2019");
+            queryMap.put("year",year);
             List<Map> list = memScoreStatisticsService.getUserStatisticsScores(queryMap);
             for(int j=0;j<list.size();j++){
                 Map scoreMap = list.get(j);
@@ -181,6 +192,16 @@ public class ExcelController {
 
     @RequestMapping(value = "/getEndemicAreaExcel")
     public void getEndemicAreaExcel(HttpServletRequest request, HttpServletResponse response){
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        String year = StringUtil.getString(request.getParameter("year"));
+        if(year == null || year.equals("")){
+            Date date = new Date();
+            year = df.format(date).split("-")[0];
+        }
+        String tname = request.getParameter("name");
+        System.out.println(tname);
+        Map userQqueryMap = new HashMap();
+        userQqueryMap.put("truename",tname);
         List<Map> endemicArealist = memScoreStatisticsService.getEndemicArea();
         List<Map> professionnallist = memScoreStatisticsService.getProfessionalGroup();
         Map<Integer,String> professionnalMap = new HashMap<Integer,String>();
@@ -264,7 +285,6 @@ public class ExcelController {
             row = sheet.createRow((int) i+1);
             Map map = endemicArealist.get(i);
             String area = StringUtil.getString(map.get("area"));
-            String year = "2019";
             Map queryMap = new HashMap();
             queryMap.put("year",year);
             queryMap.put("area",area);
