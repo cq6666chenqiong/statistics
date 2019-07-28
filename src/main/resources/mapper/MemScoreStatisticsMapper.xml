@@ -202,5 +202,14 @@
        and year = #{year}
    </update>
 
+    <select id="getMemberDetailScore" parameterType="map" resultType="map">
+
+        select  up.truename truename,u.nickname nickname,c.title title,ifnull(us.score,0) score,us.year year,ifnull(us.remark,'在线') remark,
+        ifnull(us.courseName,'在线课程') courseName
+        from user_score us left join user u on us.userId = u.id
+        left join user_profile up on u.id = up.id left join course c on us.courseId = c.id
+        where u.nickname = #{nickname}
+    </select>
+
 
 </mapper>

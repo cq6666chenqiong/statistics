@@ -12,10 +12,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Controller
@@ -113,7 +116,13 @@ public class EndemicAreaStatisticsController {
 
     @RequestMapping(value = "/getEndemicAreaStatistics")
     @ResponseBody
-    public String getEndemicAreaStatistics(){
+    public String getEndemicAreaStatistics(HttpServletRequest request, HttpServletResponse response){
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        String year = StringUtil.getString(request.getParameter("year"));
+        if(year == null || year.equals("")){
+            Date date = new Date();
+            year = df.format(date).split("-")[0];
+        }
         List<Map<String,String>> resultList = new ArrayList<Map<String,String>>();
         List<Map> endemicArealist = memScoreStatisticsService.getEndemicArea();
         List<Map> professionnallist = memScoreStatisticsService.getProfessionalGroup();
@@ -146,7 +155,6 @@ public class EndemicAreaStatisticsController {
             Map<String,String> resultmap = new HashMap<String,String>();
             Map map = endemicArealist.get(i);
             String area = StringUtil.getString(map.get("area"));
-            String year = "2019";
             Map queryMap = new HashMap();
             queryMap.put("year",year);
             queryMap.put("area",area);

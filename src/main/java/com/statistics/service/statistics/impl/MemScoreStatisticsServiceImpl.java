@@ -127,4 +127,9 @@ public class MemScoreStatisticsServiceImpl implements MemScoreStatisticsService 
     public List<Map<String, String>> getUserByPage(Map userQqueryMap) {
         return memScoreStatisticsDao.getUserByPage(userQqueryMap);
     }
+
+    @Override
+    public List<Map<String, String>> getMemberDetailScore(Map queryMap) {
+        return memScoreStatisticsDao.getMemberDetailScore(queryMap);
+    }
 }
