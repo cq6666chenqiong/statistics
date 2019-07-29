@@ -70,7 +70,7 @@ public class CalculateScoreTask {
             System.out.println("==================calculateScore==========================");
             calculateScore(professionnalMap,levelMap,map,professionnalNameMap,levelNameMap,beginTime,endTime,year);
         }
-        calculatePass(year);
+        calculatePass(beginTime,endTime,year);
         calculateResult(year,beginTime,endTime);
 
         System.out.println("end=================task");
@@ -139,7 +139,7 @@ public class CalculateScoreTask {
         }
     }
 
-    public void calculatePass(String year){
+    public void calculatePass(long beginTime,long endTime,String year){
         Map queryMap = new HashMap();
         List<Map> userScoreList = memScoreStatisticsService.getUserStatisticsScores(queryMap);
 
@@ -150,37 +150,52 @@ public class CalculateScoreTask {
             Map coureMap = new HashMap();
             coureMap.put("userId",userId);
             coureMap.put("type",type);
-            List<Map> list = memScoreStatisticsService.getMemberCourse(coureMap);
-            Integer learnCount = list.size();
-            Integer passCount = 0;
-            int ispass = 0;
-            for(int j=0;j<list.size();j++){
+            if(type.equals("34") || type.equals("1001")){
+                List<Map> list = memScoreStatisticsService.getUserStatisticsScores(coureMap);
+                Map updateMap = new HashMap();
+                updateMap.put("userId",userId);
+                updateMap.put("type",type);
+                updateMap.put("year",year);
+                updateMap.put("passmark",list.size() + "/" + list.size());
+                updateMap.put("totalnum",list.size());
+                updateMap.put("passnum",list.size());
+                updateMap.put("ispass",1);
+                memScoreStatisticsService.updateUserStatisticsScores(updateMap);
+            }else{
+                coureMap.put("beginTime",beginTime);
+                coureMap.put("endTime",endTime);
+                List<Map> list = memScoreStatisticsService.getMemberCourse(coureMap);
+                Integer learnCount = list.size();
+                Integer passCount = 0;
+                int ispass = 0;
+                for(int j=0;j<list.size();j++){
 
-                BigDecimal passScore = new BigDecimal(StringUtil.getString(list.get(j).get("giveCredit")));
-                coureMap.put("courseId",list.get(j).get("courseId"));
-                Map cm = memScoreStatisticsService.getUserScoreMessage(coureMap);
-                BigDecimal userScore = new BigDecimal(0);
-                if(cm != null && cm.get("score") != null){
-                    userScore = new BigDecimal(StringUtil.getString(cm.get("score")));
+                    BigDecimal passScore = new BigDecimal(StringUtil.getString(list.get(j).get("giveCredit")));
+                    coureMap.put("courseId",list.get(j).get("courseId"));
+                    Map cm = memScoreStatisticsService.getUserScoreMessage(coureMap);
+                    BigDecimal userScore = new BigDecimal(0);
+                    if(cm != null && cm.get("score") != null){
+                        userScore = new BigDecimal(StringUtil.getString(cm.get("score")));
+                    }
+                    if(userScore.compareTo(passScore)>=0){
+                        //System.out.println(list.get(j).get("courseId")+"============通过");
+                        passCount++;
+                    }
                 }
-                if(userScore.compareTo(passScore)>=0){
-                    //System.out.println(list.get(j).get("courseId")+"============通过");
-                    passCount++;
+                if(learnCount == passCount && learnCount > 0 && passCount > 0){
+                    ispass = 1;
                 }
+                String passmark = passCount + "/" + learnCount;
+                Map updateMap = new HashMap();
+                updateMap.put("userId",userId);
+                updateMap.put("type",type);
+                updateMap.put("year",year);
+                updateMap.put("passmark",passmark);
+                updateMap.put("totalnum",learnCount);
+                updateMap.put("passnum",passCount);
+                updateMap.put("ispass",ispass);
+                memScoreStatisticsService.updateUserStatisticsScores(updateMap);
             }
-            if(learnCount == passCount && learnCount > 0 && passCount > 0){
-                ispass = 1;
-            }
-            String passmark = passCount + "/" + learnCount;
-            Map updateMap = new HashMap();
-            updateMap.put("userId",userId);
-            updateMap.put("type",type);
-            updateMap.put("year",year);
-            updateMap.put("passmark",passmark);
-            updateMap.put("totalnum",learnCount);
-            updateMap.put("passnum",passCount);
-            updateMap.put("ispass",ispass);
-            memScoreStatisticsService.updateUserStatisticsScores(updateMap);
 
         }
     }
@@ -205,7 +220,7 @@ public class CalculateScoreTask {
             set.add(professionnalNameMap.get(groupStrs[i]));
         }
         set.add(cengji);
-        //获取用户当前年份所学的课程
+        //获取用户当前年份所学的课程      计算线上课程
         List<Map> list = memScoreStatisticsService.getMemberCourse(queryMap);
         System.out.println(userId+"==有======"+list.size()+"个==========="+beginTime+"===="+endTime);
         Map<Integer,Map> fenMap = new HashMap<Integer,Map>();
@@ -259,6 +274,48 @@ public class CalculateScoreTask {
             }
 
         }
+
+        queryMap.put("userId",userId);
+        queryMap.put("year",year);
+        queryMap.put("courseId",-1);
+        Map<String,String> downLevelcourseScore = memScoreStatisticsService.getMemberCourseScore(queryMap);
+        if(downLevelcourseScore != null && downLevelcourseScore.size() > 0){
+            Map fMap = new HashMap();
+            BigDecimal s = new BigDecimal(downLevelcourseScore.get("score"));
+            fMap.put("id", UUID.randomUUID().toString());
+            fMap.put("userId",userId);
+            fMap.put("type",34);
+            fMap.put("typeName","线下层级课程");
+            fMap.put("totalScore",s);
+            fMap.put("year",year);
+            fMap.put("nickname",member.get("nickname"));
+            fMap.put("endemicArea",member.get("endemic_area"));
+
+            //fMap.put("totalScore",s);
+            fenMap.put(34,fMap);
+        }
+
+        queryMap.put("userId",userId);
+        queryMap.put("year",year);
+        queryMap.put("courseId",-2);
+        Map<String,String> downProfessionalcourseScore = memScoreStatisticsService.getMemberCourseScore(queryMap);
+        if(downProfessionalcourseScore != null && downProfessionalcourseScore.size() > 0){
+            Map fMap = new HashMap();
+            BigDecimal s = new BigDecimal(downLevelcourseScore.get("score"));
+            fMap.put("id", UUID.randomUUID().toString());
+            fMap.put("userId",userId);
+            fMap.put("type",1001);
+            fMap.put("typeName","线下专业课程");
+            fMap.put("totalScore",s);
+            fMap.put("year",year);
+            fMap.put("nickname",member.get("nickname"));
+            fMap.put("endemicArea",member.get("endemic_area"));
+
+            //fMap.put("totalScore",s);
+            fenMap.put(1001,fMap);
+        }
+
+
         /*
         Iterator<Integer> its = set.iterator();
         while(its.hasNext()){
