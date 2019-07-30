@@ -17,9 +17,9 @@ public class CalculateScoreTask {
     @Autowired
     private MemScoreStatisticsService memScoreStatisticsService;
 
-    private BigDecimal standardScore = new BigDecimal(1);
+    private BigDecimal standardScore = new BigDecimal(13);
 
-  /* @Scheduled(cron = "* 0/5 * * * ?")*/
+    @Scheduled(cron = "* 0/5 * * * ?")
     public void run() throws Exception {
         System.out.println("start=================task");
         Date date = new Date();
@@ -224,6 +224,7 @@ public class CalculateScoreTask {
         List<Map> list = memScoreStatisticsService.getMemberCourse(queryMap);
         System.out.println(userId+"==有======"+list.size()+"个==========="+beginTime+"===="+endTime);
         Map<Integer,Map> fenMap = new HashMap<Integer,Map>();
+        //每个课程进行计算
         for(int i=0;i<list.size();i++){
             //System.out.println("==================go on =========================="+userId);
             Map membercourse = list.get(i);
@@ -237,6 +238,7 @@ public class CalculateScoreTask {
             queryMap.put("userId",userId);
             queryMap.put("year",year);
             queryMap.put("courseId",courseId);
+            //计算每个课程下的课时总学分，就是这门课程的分数
             Map<String,String> courseScore = memScoreStatisticsService.getMemberCourseScore(queryMap);
             String courseTypeName = "";
             if(ct < 30){
@@ -281,7 +283,7 @@ public class CalculateScoreTask {
         Map<String,String> downLevelcourseScore = memScoreStatisticsService.getMemberCourseScore(queryMap);
         if(downLevelcourseScore != null && downLevelcourseScore.size() > 0){
             Map fMap = new HashMap();
-            BigDecimal s = new BigDecimal(downLevelcourseScore.get("score"));
+            BigDecimal s = new BigDecimal(StringUtil.getString(downLevelcourseScore.get("score")));
             fMap.put("id", UUID.randomUUID().toString());
             fMap.put("userId",userId);
             fMap.put("type",34);
@@ -301,7 +303,7 @@ public class CalculateScoreTask {
         Map<String,String> downProfessionalcourseScore = memScoreStatisticsService.getMemberCourseScore(queryMap);
         if(downProfessionalcourseScore != null && downProfessionalcourseScore.size() > 0){
             Map fMap = new HashMap();
-            BigDecimal s = new BigDecimal(downLevelcourseScore.get("score"));
+            BigDecimal s = new BigDecimal(StringUtil.getString(downProfessionalcourseScore.get("score")));
             fMap.put("id", UUID.randomUUID().toString());
             fMap.put("userId",userId);
             fMap.put("type",1001);
