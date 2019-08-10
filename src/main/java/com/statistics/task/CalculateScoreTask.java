@@ -1,5 +1,7 @@
 package com.statistics.task;
 
+import com.alibaba.fastjson.JSON;
+import com.statistics.service.statistics.CourseMgService;
 import com.statistics.service.statistics.MemScoreStatisticsService;
 import com.statistics.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +19,33 @@ public class CalculateScoreTask {
     @Autowired
     private MemScoreStatisticsService memScoreStatisticsService;
 
+    @Autowired
+    private CourseMgService courseMgService;
+
     private BigDecimal standardScore = new BigDecimal(13);
 
-    @Scheduled(cron = "* 0/5 * * * ?")
+    /*@Scheduled(cron = "0/10 * * * * ?")*/
     public void run() throws Exception {
         System.out.println("start=================task");
+
+
+
         Date date = new Date();
         SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
         String time = sd.format(date);
         String year = time.split("-")[0];
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.clear();
+        calendar.set(Calendar.YEAR,Integer.valueOf(year));
+        calendar.roll(Calendar.DAY_OF_YEAR,-1);
+        Date currYearLast = calendar.getTime();
+        String currYearLastday = sd.format(currYearLast);
+        System.out.println(time + "============" + currYearLastday);
+        if(time.equals(currYearLastday)){
+            return;
+        }
+
 
         Date beginDate = sd.parse(year + "-01-01 00:00:00");
         Date endDate = sd.parse(year + "-12-31 23:59:59");
@@ -34,6 +54,9 @@ public class CalculateScoreTask {
         long beginTime = cal.getTimeInMillis()/1000;
         cal.setTime(endDate);
         long endTime = cal.getTimeInMillis()/1000;
+        Map delmap = new HashMap();
+        delmap.put("year",year);
+        courseMgService.delUserStatisticsScore(delmap);
 
         List<Map> endemicArealist = memScoreStatisticsService.getEndemicArea();
         List<Map> professionnallist = memScoreStatisticsService.getProfessionalGroup();
@@ -208,6 +231,7 @@ public class CalculateScoreTask {
         queryMap.put("userId",userId);
         queryMap.put("beginTime",beginTime);
         queryMap.put("endTime",endTime);
+
         /* coureMap.put("userId",userId);
         coureMap.put("type",type);*/
         String groups = StringUtil.getString(member.get("professional_groups"));
@@ -226,7 +250,7 @@ public class CalculateScoreTask {
         Map<Integer,Map> fenMap = new HashMap<Integer,Map>();
         //每个课程进行计算
         for(int i=0;i<list.size();i++){
-            //System.out.println("==================go on =========================="+userId);
+            System.out.println("==================go on =========================="+userId);
             Map membercourse = list.get(i);
             String courseId = StringUtil.getString(membercourse.get("courseId"));
             queryMap.put("courseId",courseId);
@@ -248,9 +272,9 @@ public class CalculateScoreTask {
             }
             String thisscore = "0";
             if(courseScore == null){
-                //System.out.println("得分0===========");
+                System.out.println("得分0===========");
                 thisscore = "0";
-            }else{//System.out.println("得分" + StringUtil.getString(courseScore.get("score")) + "===========");
+            }else{System.out.println("得分" + StringUtil.getString(courseScore.get("score")) + "===========");
 
                 thisscore = StringUtil.getString(courseScore.get("score"));
             }
@@ -346,7 +370,7 @@ public class CalculateScoreTask {
             }
         }
         */
-        //System.out.println(JSON.toJSONString(fenMap));
+        System.out.println(JSON.toJSONString(fenMap));
         Iterator<Integer> is = fenMap.keySet().iterator();
         while(is.hasNext()){
             Integer key = is.next();
@@ -361,6 +385,9 @@ public class CalculateScoreTask {
                 memScoreStatisticsService.addUserStatisticsScore(scoreMap);
             }
         }
+
+        System.out.println(beginTime);
+        System.out.println(endTime);
         //Map useScoreMap = memScoreStatisticsService.getUserScore(queryMap);
     }
 }

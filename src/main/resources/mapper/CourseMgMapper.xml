@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.statistics.dao.CourseMgDao" >
+
+    <delete id="delCourseMemberByCourseId" parameterType="map">
+        delete from course_member where courseId = #{courseId}
+    </delete>
+
+    <delete id="delUserScoreByCourseId" parameterType="map">
+        delete from user_score where courseId = #{courseId}
+    </delete>
+
+    <delete id="delUserStatisticsScore" parameterType="map">
+        delete from user_statistics_score where year = #{year}
+    </delete>
+
+
+    <delete id="delCourseMember" parameterType="map">
+        delete from course_member where courseId = #{courseId} and userId = #{userId}
+    </delete>
+
+
+    <delete id="delUserScore" parameterType="map">
+        delete from user_score where courseId = #{courseId} and userId = #{userId}
+    </delete>
+
+
+
+
+
+
+
+
+
+
+
+</mapper>
