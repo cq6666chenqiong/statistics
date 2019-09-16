@@ -58,11 +58,13 @@ public class MemScoreStatisticsController {
             year = df.format(date).split("-")[0];
         }
         String tname = request.getParameter("name");
-        System.out.println(tname);
+        String area = request.getParameter("area");
+        System.out.println("======================="+area);
         Map userQqueryMap = new HashMap();
         userQqueryMap.put("onpage",(onpage-1)*50);
         userQqueryMap.put("endpage",endpage);
         userQqueryMap.put("truename",tname);
+        userQqueryMap.put("area",area);
         List<Map<String,String>> userList = memScoreStatisticsService.getUserByPage(userQqueryMap);
 
         //List<Map<String,String>> userList = memScoreStatisticsService.getAllUser();
@@ -149,9 +151,11 @@ public class MemScoreStatisticsController {
             year = df.format(date).split("-")[0];
         }
         String tname = request.getParameter("name");
-        System.out.println(tname);
+        String area = request.getParameter("area");
+        System.out.println("======================="+area);
         Map userQqueryMap = new HashMap();
         userQqueryMap.put("truename",tname);
+        userQqueryMap.put("area",area);
         List<Map<String,String>> userList = memScoreStatisticsService.getAllUser(userQqueryMap);
         JSONObject json = new JSONObject();
         json.put("sum",userList.size());

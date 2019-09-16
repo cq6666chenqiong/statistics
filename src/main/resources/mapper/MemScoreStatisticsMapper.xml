@@ -143,6 +143,9 @@
             <if test="truename != null and truename != ''">
                 and up.truename = #{truename}
             </if>
+            <if test="area != null and area != ''">
+                and up.varcharField3 = #{area}
+            </if>
         </where>
     </select>
 
@@ -155,6 +158,9 @@
                 1 = 1
                 <if test="truename != null and truename != ''">
                     and up.truename = #{truename}
+                </if>
+                <if test="area != null and area != ''">
+                    and up.varcharField3 = #{area}
                 </if>
             </where>
             order by u.id asc

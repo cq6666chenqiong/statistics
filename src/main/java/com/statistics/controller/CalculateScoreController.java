@@ -1,4 +1,4 @@
-package com.statistics.task;
+package com.statistics.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.statistics.service.statistics.CourseMgService;
@@ -6,16 +6,16 @@ import com.statistics.service.statistics.MemScoreStatisticsService;
 import com.statistics.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-@Component
-public class CalculateScoreTask {
-
+@Controller
+@RequestMapping(value = "/calculate")
+public class CalculateScoreController {
     @Autowired
     private MemScoreStatisticsService memScoreStatisticsService;
 
@@ -24,8 +24,8 @@ public class CalculateScoreTask {
 
     private BigDecimal standardScore = new BigDecimal(13);
 
-    @Scheduled(cron = "0 0 0/5 * * ?")
-    public void run() throws Exception {
+    @RequestMapping(value = "/calculateScore")
+    public void calculateScore() throws Exception {
         SimpleDateFormat td = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date();
         SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
@@ -38,7 +38,7 @@ public class CalculateScoreTask {
         calendar.roll(Calendar.DAY_OF_YEAR,-1);
         Date currYearLast = calendar.getTime();
         String currYearLastday = sd.format(currYearLast);
-       // System.out.println(time + "============" + currYearLastday);
+        // System.out.println(time + "============" + currYearLastday);
         if(time.equals(currYearLastday)){
             return;
         }
@@ -87,13 +87,13 @@ public class CalculateScoreTask {
             String userId = StringUtil.getString(map.get("id"));
             String groups = map.get("professional_groups");
             List<Map> userScoreList = memScoreStatisticsService.getUserStatisticsScores(map);
-           // System.out.println("==================calculateScore==========================");
+            // System.out.println("==================calculateScore==========================");
             calculateScore(professionnalMap,levelMap,map,professionnalNameMap,levelNameMap,beginTime,endTime,year);
         }
         calculatePass(beginTime,endTime,year);
         calculateResult(year,beginTime,endTime);
 
-       // System.out.println("end=================task");
+        // System.out.println("end=================task");
     }
 
 
@@ -249,7 +249,7 @@ public class CalculateScoreTask {
         Map<Integer,Map> fenMap = new HashMap<Integer,Map>();
         //每个课程进行计算
         for(int i=0;i<list.size();i++){
-           // System.out.println("==================go on =========================="+userId);
+            // System.out.println("==================go on =========================="+userId);
             Map membercourse = list.get(i);
             String courseId = StringUtil.getString(membercourse.get("courseId"));
             queryMap.put("courseId",courseId);
@@ -385,8 +385,8 @@ public class CalculateScoreTask {
             }
         }
 
-        //System.out.println(beginTime);
-        //System.out.println(endTime);
+       // System.out.println(beginTime);
+       // System.out.println(endTime);
         //Map useScoreMap = memScoreStatisticsService.getUserScore(queryMap);
     }
 }

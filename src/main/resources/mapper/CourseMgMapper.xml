@@ -24,12 +24,86 @@
         delete from user_score where courseId = #{courseId} and userId = #{userId}
     </delete>
 
+    <delete id="delCourseById" parameterType="map">
+        delete from course where id = #{id}
+    </delete>
+
+    <delete id="delCourseChapterByCourseId" parameterType="map">
+        delete from course_chapter where courseId = #{courseId}
+    </delete>
 
 
+    <delete id="delCourseDraftByCourseId" parameterType="map">
+        delete from course_draft where courseId = #{courseId}
+    </delete>
 
+    <delete id="delCourseExpriyByCourseId" parameterType="map">
+        delete from course_expriy where courseId = #{courseId}
+    </delete>
 
+    <delete id="delCourseFavoriteByCourseId" parameterType="map">
+        delete from course_favorite where courseId = #{courseId}
+    </delete>
 
+    <delete id="delCourseLessonByCourseId" parameterType="map">
+        delete from course_lesson where courseId = #{courseId}
+    </delete>
 
+    <delete id="delCourseLessonExtendByCourseId" parameterType="map">
+        delete from course_lesson_extend where courseId = #{courseId}
+    </delete>
+
+    <delete id="delCourseLessonLearnByCourseId" parameterType="map">
+        delete from course_lesson_learn where courseId = #{courseId}
+    </delete>
+
+    <delete id="delCourseLessonReplayByCourseId" parameterType="map">
+        delete from course_lesson_replay where courseId = #{courseId}
+    </delete>
+
+    <delete id="delCourseLessonViewByCourseId" parameterType="map">
+        delete from course_lesson_view where courseId = #{courseId}
+    </delete>
+
+    <delete id="delCourseMaterialByCourseId" parameterType="map">
+        delete from course_material where courseId = #{courseId}
+    </delete>
+
+    <delete id="delCourseNoteByCourseId" parameterType="map">
+        delete from course_note where courseId = #{courseId}
+    </delete>
+
+    <delete id="delCourseNoteLikeByCourseId" parameterType="map">
+        delete from course_note_like where id = #{courseId}
+    </delete>
+
+    <delete id="delCourseReviewByCourseId" parameterType="map">
+        delete from course_review where courseId = #{courseId}
+    </delete>
+
+    <delete id="delCourseThreadByCourseId" parameterType="map">
+        delete from course_thread where courseId = #{courseId}
+    </delete>
+
+    <select id="getTestPaperByTarget" parameterType="map" resultType="map">
+        select * from testpaper where target = #{target}
+    </select>
+
+    <delete id="delTestPaperById" parameterType="map" >
+        delete from testpaper where id = #{id}
+    </delete>
+
+    <delete id="delTestPaperItemByTestId" parameterType="map" >
+        delete from testpaper_item where testId = #{testId}
+    </delete>
+
+    <delete id="delTestPaperItemResultByTestId" parameterType="map" >
+        delete from testpaper_item_result where testId = #{testId}
+    </delete>
+
+    <delete id="delTestPaperResultByTestId" parameterType="map" >
+        delete from testpaper_result where testId = #{testId}
+    </delete>
 
 
 
