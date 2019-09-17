@@ -193,13 +193,16 @@ public class EndemicAreaStatisticsController {
                 List userScoresProb = memScoreStatisticsService.getUserStatisticsScores(queryMap);
                 System.out.print("       "+userScoresProb.size()+"/"+(userScoresProa.size() + userScoresProb.size()));
                 resultmap.put(type+"",userScoresProb.size()+"/"+(userScoresProa.size() + userScoresProb.size()));
+                a = a + userScoresProb.size();
+                b = b + userScoresProa.size() + userScoresProb.size();
             }
             if(b==0){
                 resultmap.put("professionnalresult","0.00%");
             }else{
                 resultmap.put("professionnalresult",new BigDecimal(a).divide(new BigDecimal(b),2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP)+"%");
             }
-
+            a = 0;
+            b = 0;
             resultList.add(resultmap);
             System.out.println();
         }

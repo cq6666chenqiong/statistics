@@ -42,7 +42,7 @@
             <if test="typeName != null and typeName != ''">
                 and typeName = #{typeName}
             </if>
-            <if test="type != null and type != ''">
+            <if test="type != null "> <!--and type != ''-->
                 and type = #{type}
             </if>
             <if test="year != null and year != ''">
@@ -51,7 +51,7 @@
             <if test="area != null and area != ''">
                 and endemic_area = #{area}
             </if>
-            <if test="ispass != null and ispass != ''">
+            <if test="ispass != null"><!-- and ispass != ''-->
                 and ispass = #{ispass}
             </if>
         </where>

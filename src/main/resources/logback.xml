@@ -58,7 +58,7 @@
     <logger name="slow" level="WARN">
         <appender-ref ref="story-open-api-slow-log-file"/>
     </logger>
-    <!--<logger name="com.statistics.dao" level="DEBUG">
+    <logger name="com.statistics.dao" level="DEBUG">
         <appender-ref ref="STDOUT"/>
-    </logger>-->
+    </logger>
 </configuration>
