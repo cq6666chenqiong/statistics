@@ -136,7 +136,7 @@
 
     <select id="getAllUser"  parameterType="map" resultType="map">
         select u.id,u.nickname,up.varcharField3 endemic_area,up.truename truename,
-        IF ( up.varcharField4='' , '其他' , up.varcharField4 ) professional_groups,company cengji
+        IF ( up.varcharField4='' , '其他' , up.varcharField4 ) professional_groups,IF (company='','0',company) cengji
         from user u LEFT JOIN user_profile up on u.id = up.id
         <where>
             1 = 1
@@ -152,7 +152,7 @@
     <select id="getUserByPage"  parameterType="map" resultType="map">
         select * from (
             select u.id,u.nickname,up.varcharField3 endemic_area,up.truename truename,
-            IF ( up.varcharField4='' , '其他' , up.varcharField4 ) professional_groups,company cengji
+            IF ( up.varcharField4='' , '其他' , up.varcharField4 ) professional_groups,IF (company='','0',company) cengji
             from user u LEFT JOIN user_profile up on u.id = up.id
             <where>
                 1 = 1

@@ -25,6 +25,9 @@ public class CalculateScoreTask {
     private BigDecimal standardScore = new BigDecimal(13);
 
     @Scheduled(cron = "0 0 0/5 * * ?")
+/*
+    @Scheduled(cron = "0 49 7 * * ?")
+*/
     public void run() throws Exception {
         SimpleDateFormat td = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date();
@@ -167,6 +170,11 @@ public class CalculateScoreTask {
             Map map = userScoreList.get(i);
             String userId = StringUtil.getString(map.get("userId"));
             String type = StringUtil.getString(map.get("type"));
+
+            if(userId.equals("9304")){
+                System.out.println("=========================");
+            }
+
             Map coureMap = new HashMap();
             coureMap.put("userId",userId);
             coureMap.put("type",type);
@@ -223,8 +231,8 @@ public class CalculateScoreTask {
 
     public void calculateScore(Map<Integer,String> professionnalMap,Map<Integer,String> levelMap,Map<String,String> member,Map<String,Integer> professionnalNameMap,Map<String,Integer> levelNameMap,long beginTime,long endTime,String year){
         String userId = StringUtil.getString(member.get("id"));
-        //System.out.println("==================go on =========================="+userId);
-
+        System.out.println("==================go on =========================="+userId);
+        System.out.println("==================go on =========================="+member.get("cengji"));
         Integer cengji = Integer.valueOf(StringUtil.getString(member.get("cengji")).trim());
         Map queryMap = new HashMap();
         queryMap.put("userId",userId);
