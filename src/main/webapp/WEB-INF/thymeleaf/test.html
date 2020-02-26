@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script th:inline="javascript" type="text/javascript">
+           // var ctxPath  = [[@{/}]];
+           // var ctxPath = /*[[@{/}]]*/'';
+            var ctxPath=[[${#httpServletRequest.getContextPath()}]];
+            document.getElementById("ccc").innerHTML("ssssss");
+    </script>
+    原文链接：https://blog.csdn.net/q_linchao/article/details/88233290
+    <style type="text/css">
+        label.error{
+            color:red;
+        }
+        input.error{
+            background:yellow
+        }
+    </style>
+</head>
+<body>
+
+<p th:text="${message}">111</p>
+
+<p id="ccc">111</p>
+
+
+
+</body>
+</html>
