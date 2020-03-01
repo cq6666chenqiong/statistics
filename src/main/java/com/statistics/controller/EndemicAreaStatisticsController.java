@@ -114,7 +114,7 @@ public class EndemicAreaStatisticsController {
         }
     }
 
-    @RequestMapping(value = "/getEndemicAreaStatistics")
+    @RequestMapping(value = "/getEndemicAreaStatistics",produces="text/html;charset=utf-8")
     @ResponseBody
     public String getEndemicAreaStatistics(HttpServletRequest request, HttpServletResponse response){
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");

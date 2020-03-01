@@ -171,9 +171,6 @@ public class CalculateScoreTask {
             String userId = StringUtil.getString(map.get("userId"));
             String type = StringUtil.getString(map.get("type"));
 
-            if(userId.equals("9304")){
-                System.out.println("=========================");
-            }
 
             Map coureMap = new HashMap();
             coureMap.put("userId",userId);

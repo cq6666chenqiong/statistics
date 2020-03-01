@@ -48,6 +48,8 @@ public class ExcelController {
             String userId = StringUtil.getString(userMap.get("id"));
             String truename = StringUtil.getString(userMap.get("truename"));
             String nickname = StringUtil.getString(userMap.get("nickname"));
+            String endemic_area = StringUtil.getString(userMap.get("endemic_area"));
+            String cengji = StringUtil.getString(userMap.get("cengji"));
             String ispass = "未通过";
             Map queryMap = new HashMap();
             queryMap.put("userId",userId);
@@ -97,6 +99,8 @@ public class ExcelController {
             Map<String,Object> userScoreMap = new HashMap<String,Object>();
             userScoreMap.put("userId",userId);
             userScoreMap.put("truename",truename);
+            userScoreMap.put("endemic_area",endemic_area);
+            userScoreMap.put("cengji",cengji);
             userScoreMap.put("levelList",levelList);
             userScoreMap.put("professionList",professionList);
             userScoreMap.put("ispass",ispass);
@@ -126,12 +130,18 @@ public class ExcelController {
         cell.setCellValue("员工姓名");
         cell.setCellStyle(styleGreen);
         cell = row.createCell((short) 2);
-        cell.setCellValue("层级课");
+        cell.setCellValue("层级");
         cell.setCellStyle(styleGreen);
         cell = row.createCell((short) 3);
-        cell.setCellValue("专业课");
+        cell.setCellValue("病区");
         cell.setCellStyle(styleGreen);
         cell = row.createCell((short) 4);
+        cell.setCellValue("层级课");
+        cell.setCellStyle(styleGreen);
+        cell = row.createCell((short) 5);
+        cell.setCellValue("专业课");
+        cell.setCellStyle(styleGreen);
+        cell = row.createCell((short) 6);
         cell.setCellValue("是否通过");
         cell.setCellStyle(styleGreen);
 
@@ -148,6 +158,14 @@ public class ExcelController {
             cell.setCellValue(StringUtil.getString(map.get("truename")));
             cell.setCellStyle(styleCentor);
             cell = row.createCell((short) 2);
+            cell.setCellValue(StringUtil.getString(map.get("cengji")));
+            cell.setCellStyle(styleCentor);
+            cell = row.createCell((short) 3);
+            cell.setCellValue(StringUtil.getString(map.get("endemic_area")));
+
+
+            cell.setCellStyle(styleCentor);
+            cell = row.createCell((short) 4);
             List<Map<String,String>> l = (List<Map<String,String>>)map.get("levelList");
             String le = "";
             for(int j=0;j<l.size();j++){
@@ -162,10 +180,10 @@ public class ExcelController {
                 Map<String,String> pmap = p.get(j);
                 pr = pr + StringUtil.getString(pmap.get("typeName")) + "       " + StringUtil.getString(pmap.get("passmark")) + "       " + StringUtil.getString(pmap.get("total_score")) + "\r\n";
             }
-            cell = row.createCell((short) 3);
+            cell = row.createCell((short) 5);
             cell.setCellValue(pr);
             cell.setCellStyle(styleCentor);
-            cell = row.createCell((short) 4);
+            cell = row.createCell((short) 6);
             cell.setCellValue( StringUtil.getString(map.get("ispass")));
             cell.setCellStyle(styleCentor);
         }

@@ -38,7 +38,7 @@ public class MemScoreStatisticsController {
     @Autowired
     private MemScoreStatisticsService memScoreStatisticsService;
 
-    @RequestMapping(value = "/getEndemicArea")
+    @RequestMapping(value = "/getEndemicArea",produces="text/html;charset=utf-8")
     @ResponseBody
     public String getEndemicArea(){
         List<Map> list = memScoreStatisticsService.getEndemicArea();
@@ -163,7 +163,7 @@ public class MemScoreStatisticsController {
     }
 
 
-    @RequestMapping(value = "/getMemberStatistics")
+    @RequestMapping(value = "/getMemberStatistics",produces="text/html;charset=utf-8")
     @ResponseBody
     public String getMemberStatistics(){
         List<Map> endemicArealist = memScoreStatisticsService.getEndemicArea();
