@@ -42,21 +42,20 @@
 <div class="row">
     <div class="col-sm-12">
         <div class="ibox float-e-margins">
-
             <div class="ibox-content box"  >
                 <div class="row"  >
                     <div style="margin-top: 50px">
-                        <p style="font-size: 40px">批量添加用户</p>
-                    </div>
-                    <div style="margin-top: 50px">
-                        <a href="/memberUpload/downLoadMemberModel">下载批量添加用户模板</a>
+                        <p style="font-size: 40px">线下上传成绩</p>
                     </div>
 
+                    <div style="margin-top: 50px">
+                        <a href="/scoreUpload/downLoadScoreModel">下载线下上传成绩模板</a>
+                    </div>
                 </div>
-                <div id="uploader-demo" style="margin-top: 50px" >
+                <div id="uploader-demo" style="margin-top: 50px">
                     <!--用来存放item-->
                     <div id="thelist" class="uploader-list"></div>
-                    <div class="text-center ">
+                    <div>
                         <div id="filePicker" style="float:left">选择文件</div>
                         <div style="float:left"><button id="ctlBtn" class="btn btn-default">开始上传</button></div>
                     </div>
@@ -87,7 +86,7 @@
             swf: ctxPath + '/statics/plugin/webuploader/Uploader.swf',
 
             // 文件接收服务端。
-            server: ctxPath + '/memberUpload/upload',
+            server: ctxPath + '/scoreUpload/upload',
 
             // 选择文件的按钮。可选。
             // 内部根据当前运行是创建，可能是input元素，也可能是flash.

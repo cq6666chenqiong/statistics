@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
 @Transactional
 public class UserServiceImpl implements UserService {
@@ -28,5 +31,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public void addExcelUser(ExcelUser user) {
         userDao.addExcelUser(user);
+    }
+
+    @Override
+    public Map getUser(User user) {
+        return userDao.getUser(user);
+    }
+
+    @Override
+    public List<Map> getUserDetail(Map map) {
+        return userDao.getUserDetail(map);
     }
 }

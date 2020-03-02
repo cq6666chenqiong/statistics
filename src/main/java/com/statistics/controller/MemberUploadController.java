@@ -5,11 +5,11 @@ import com.statistics.model.ExcelUserProfile;
 import com.statistics.service.statistics.MemScoreStatisticsService;
 import com.statistics.service.statistics.UserProfileService;
 import com.statistics.service.statistics.UserService;
+import com.statistics.util.ConstantData;
 import com.statistics.util.ExcelUtil;
 import com.statistics.util.StringUtil;
 import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.poi.hssf.usermodel.HSSFDateUtil;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -24,9 +24,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.net.URLEncoder;
 import java.util.*;
 
 @Controller
@@ -252,4 +253,165 @@ public class MemberUploadController {
         }
 
     }*/
+
+    @RequestMapping(value = "/downLoadMemberModel")
+    @ResponseBody
+    public void downLoadMemberModel(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        File file = new File(ConstantData.memberModelpath);
+        //设置中文文件名与后缀
+        String encodedFileName = URLEncoder.encode("批量上传用户信息模板" + ".xls","utf-8").replaceAll("\\+", "%20");
+        // 清除buffer缓存
+        response.reset();
+        // 指定下载的文件名
+        response.setHeader("Content-Disposition",
+                "attachment;filename="+encodedFileName+"");
+        response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Cache-Control", "no-cache");
+        response.setDateHeader("Expires", 0);
+
+        BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+        OutputStream outputStream = response.getOutputStream();
+        byte[] buffer = new byte[1024];
+        int len = 0 ;
+        while ((len = inputStream.read(buffer)) != -1){
+            outputStream.write(buffer ,0 , len);
+        }
+        inputStream.close();
+        outputStream.close();
+
+    }
+
+    /***
+     * 创建表头
+     * @param workbook
+     * @param sheet
+     */
+    private void createTitle(HSSFWorkbook workbook, HSSFSheet sheet)
+    {
+        HSSFRow row = sheet.createRow(0);
+        //设置列宽，setColumnWidth的第二个参数要乘以256，这个参数的单位是1/256个字符宽度
+        sheet.setColumnWidth(2, 12*256);
+        sheet.setColumnWidth(3, 17*256);
+
+        //设置为居中加粗
+        short m = 3;
+        HSSFCellStyle style = workbook.createCellStyle();
+        HSSFFont font = workbook.createFont();
+        font.setBoldweight(m);
+        style.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+        style.setFont(font);
+
+        HSSFCell cell;
+        cell = row.createCell(0);
+        cell.setCellValue("员工编号");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(1);
+        cell.setCellValue("姓名");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(2);
+        cell.setCellValue("性别");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(3);
+        cell.setCellValue("身份证号");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(4);
+        cell.setCellValue("出生日期");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(5);
+        cell.setCellValue("手机号码");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(6);
+        cell.setCellValue("职称");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(7);
+        cell.setCellValue("行政职务");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(8);
+        cell.setCellValue("病区");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(9);
+        cell.setCellValue("层级");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(10);
+        cell.setCellValue("专业类别");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(11);
+        cell.setCellValue("最高学位");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(12);
+        cell.setCellValue("教学老师");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(13);
+        cell.setCellValue("其他");
+        cell.setCellStyle(style);
+    }
+
+
+    @RequestMapping(value = "/downLoadMemberExcel")
+    @ResponseBody
+    public void downLoadMemberExcel(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String nickname = request.getParameter("nickname");  //员工工号
+        String truename = request.getParameter("truename");  //员工姓名
+        String company = request.getParameter("company");    //层级
+
+        Map map = new HashMap();
+        map.put("nickname",nickname);
+        map.put("truename",truename);
+        map.put("company",company);
+        List<Map> userList = userService.getUserDetail(map);
+
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        HSSFSheet sheet = workbook.createSheet("用户信息");
+        createTitle(workbook, sheet);
+        int rowNum = 1;
+        for (Map m:userList) {
+            HSSFRow row = sheet.createRow(rowNum);
+            row.createCell(0).setCellValue(StringUtil.getString(m.get("nickname")));          //工号
+            row.createCell(1).setCellValue(StringUtil.getString(m.get("truename")));          //姓名
+            row.createCell(2).setCellValue(StringUtil.getString(m.get("birthday")));          //性别
+            row.createCell(3).setCellValue(StringUtil.getString(m.get("idcard")));            //身份证号
+            row.createCell(4).setCellValue(StringUtil.getString(m.get("varcharField1")));    //出生日期
+            row.createCell(5).setCellValue(StringUtil.getString(m.get("mobile")));            //手机号码
+            row.createCell(6).setCellValue(StringUtil.getString(m.get("job")));               //职称
+            row.createCell(7).setCellValue(StringUtil.getString(m.get("varcharField2")));    //行政职务
+            row.createCell(8).setCellValue(StringUtil.getString(m.get("varcharField3")));     //病区
+            row.createCell(9).setCellValue(StringUtil.getString(m.get("company")));           //层级
+            row.createCell(10).setCellValue(StringUtil.getString(m.get("varcharField4")));    //专业类别
+            row.createCell(11).setCellValue(StringUtil.getString(m.get("varcharField6")));    //最高学历
+            row.createCell(12).setCellValue(StringUtil.getString(m.get("varcharField5")));    //教学老师
+            row.createCell(13).setCellValue(StringUtil.getString(m.get("varcharField7")));    //其他
+
+            rowNum++;
+        }
+        //设置中文文件名与后缀
+        String encodedFileName = URLEncoder.encode("用户信息" + ".xls","utf-8").replaceAll("\\+", "%20");
+        // 清除buffer缓存
+        response.reset();
+        // 指定下载的文件名
+        response.setHeader("Content-Disposition",
+                "attachment;filename="+encodedFileName+"");
+        response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Cache-Control", "no-cache");
+        response.setDateHeader("Expires", 0);
+
+        OutputStream outputStream = response.getOutputStream();
+        workbook.write(outputStream);
+        outputStream.close();
+
+    }
 }

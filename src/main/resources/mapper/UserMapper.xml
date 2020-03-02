@@ -181,10 +181,40 @@
         #{inviteCode},
         #{orgId},
         #{orgCode}
-
         )
     </insert>
 
+    <select id="getUser" parameterType="com.statistics.model.User" resultType="map">
+        select * from user
+        <where>
+            1 = 1
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+            <if test="nickname != null and nickname != ''">
+                and nickname = #{nickname}
+            </if>
+        </where>
+    </select>
 
+
+    <select id="getUserDetail" parameterType="map" resultType="map">
+        select * from user u left join user_profile up on u.id = up.id
+        <where>
+            1 = 1
+            <if test="id != null and id != ''">
+                and u.id = #{id}
+            </if>
+            <if test="nickname != null and nickname != ''">
+                and u.nickname = #{nickname}
+            </if>
+            <if test="truename != null and truename != ''">
+                and up.truename = #{truename}
+            </if>
+            <if test="company != null and company != ''">
+                and up.company = #{company}
+            </if>
+        </where>
+    </select>
 
 </mapper>
