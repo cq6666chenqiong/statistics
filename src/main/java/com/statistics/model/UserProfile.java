@@ -58,6 +58,7 @@ public class UserProfile {
     private String textField4;
     private String textField5;
     private String textField6;
+    private String textField7;
     private String textField8;
     private String textField9;
     private String textField10;
@@ -476,6 +477,14 @@ public class UserProfile {
 
     public void setTextField6(String textField6) {
         this.textField6 = textField6;
+    }
+
+    public String getTextField7() {
+        return textField7;
+    }
+
+    public void setTextField7(String textField7) {
+        this.textField7 = textField7;
     }
 
     public String getTextField8() {

@@ -9,6 +9,10 @@ public class ExcelUtil {
     public static String getValue(Cell cell){
         String result = "";
 
+        if(cell == null){
+            return result;
+        }
+
         switch (cell.getCellType()) // Cell.getCellType() has not deprecated in API
         {
             // Because of Cell.getCellType().getCode() has deprecated And do not provide a replacement way So just use direct ways

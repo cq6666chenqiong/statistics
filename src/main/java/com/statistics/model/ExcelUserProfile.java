@@ -4,21 +4,21 @@ import java.util.Date;
 
 public class ExcelUserProfile {
     private Integer id; //	用户ID,
-    private String truename;	//真实姓名,
-    private String idcard;	//身份证号码,
-    private String gender;	//性别,
-    private String iam;	//我是谁,
+    private String truename = "";	//真实姓名,
+    private String idcard = "";	//身份证号码,
+    private String gender = "";	//性别,
+    private String iam = "";	//我是谁,
     private String birthday;	//生日,
-    private String city;	//城市,
-    private String mobile;	//	手机,
-    private String qq;	//	QQ,
+    private String city = "";	//城市,
+    private String mobile = "";	//	手机,
+    private String qq = "";	//	QQ,
     private String signature = "保密";	//	签名,
-    private String about;	//	自我介绍,
-    private String company;	//	层级,
-    private String  job;	//	职称
-    private String  school;	//	学历
-    private String  memberClass;	//	班级,
-    private String  weibo;	//	微博,
+    private String about = "";	//	自我介绍,
+    private String company = "";	//	层级,
+    private String  job = "";	//	职称
+    private String  school = "";	//	学历
+    private String  memberClass = "";	//	班级,
+    private String  weibo = "";	//	微博,
     private String  weixin = "1";	//	微信,
     private Integer isQQPublic = 1;	//	QQ号是否公开,
     private Integer isWeixinPublic = 0;	//	微信是否公开,
@@ -55,6 +55,7 @@ public class ExcelUserProfile {
     private String textField4;
     private String textField5;
     private String textField6;
+    private String textField7;
     private String textField8;
     private String textField9;
     private String textField10;
@@ -475,6 +476,14 @@ public class ExcelUserProfile {
 
     public void setTextField6(String textField6) {
         this.textField6 = textField6;
+    }
+
+    public String getTextField7() {
+        return textField7;
+    }
+
+    public void setTextField7(String textField7) {
+        this.textField7 = textField7;
     }
 
     public String getTextField8() {

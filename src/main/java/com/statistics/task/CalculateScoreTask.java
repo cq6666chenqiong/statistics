@@ -24,10 +24,10 @@ public class CalculateScoreTask {
 
     private BigDecimal standardScore = new BigDecimal(13);
 
-    @Scheduled(cron = "0 0 0/5 * * ?")
-/*
-    @Scheduled(cron = "0 49 7 * * ?")
-*/
+    /*@Scheduled(cron = "0 0 0/5 * * ?")*/
+
+    @Scheduled(cron = "0 45 22 * * ?")
+
     public void run() throws Exception {
         SimpleDateFormat td = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date();

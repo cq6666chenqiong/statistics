@@ -146,7 +146,9 @@
         });
 
         // 文件上传成功，给item添加成功class, 用样式标记上传成功。
-        uploader.on( 'uploadSuccess', function( file ) {
+        uploader.on( 'uploadSuccess', function( file,response ) {
+
+            alert(response.msg);
             $( '#'+file.id ).addClass('upload-state-done');
         });
 
@@ -167,7 +169,7 @@
         uploader.on( 'uploadComplete', function( file ) {
             $( '#'+file.id ).find('.progress').remove();
             $( '#'+file.id ).remove();
-            alert(file.name + "上传成功");
+            //alert(file.name + "上传成功");
         });
         $btn.on( 'click', function() {
             //console.log("上传...");

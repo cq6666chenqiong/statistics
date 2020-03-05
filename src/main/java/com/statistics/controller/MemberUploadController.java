@@ -1,5 +1,7 @@
 package com.statistics.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.statistics.model.ExcelUser;
 import com.statistics.model.ExcelUserProfile;
 import com.statistics.service.statistics.MemScoreStatisticsService;
@@ -48,9 +50,10 @@ public class MemberUploadController {
         return "/memberUpload/memberUpload";
     }
 
-    @RequestMapping(value = "/upload")
+    @RequestMapping(value = "/upload",produces="text/html;charset=UTF-8;")
     @ResponseBody
     public String upload(@RequestParam MultipartFile file) {
+        JSONObject obj = new JSONObject();
         try {
             if (file.isEmpty()) {
                 return "文件为空";
@@ -76,21 +79,26 @@ public class MemberUploadController {
             }
             file.transferTo(dest);// 文件写入
 
-            readExcel(path);
-
+            boolean r = readExcel(path);
+            if(!r){
+                obj.put("msg","上传失败");
+                return JSON.toJSONString(obj);
+            }
 
             dest.delete();
 
-            return "success";
-        } catch (IllegalStateException e) {
+            obj.put("msg","上传成功");
+            return JSON.toJSONString(obj);
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            obj.put("msg","上传失败");
+            return JSON.toJSONString(obj);
         }
-        return "上传失败";
+
+
     }
 
-    public void readExcel(String path){
+    public boolean readExcel(String path){
 
         List<Map> rankList = memScoreStatisticsService.getlevels();
 
@@ -113,93 +121,104 @@ public class MemberUploadController {
             //下面是处理合并单元格的代码。
 
             for(int i = 1; i <= sheet.getLastRowNum(); i++){
-                Row row = sheet.getRow(i);// 获取行对象
-                if (row == null) {// 如果为空，不处理
-                    continue;
-                 }
-                /*int firstCellNum = row.getFirstCellNum();
-                int lastCellNum = row.getLastCellNum();
-                for(int j = firstCellNum;j<lastCellNum;j++){
-                    Cell cell = row.getCell(j);
-                    System.out.println(ExcelUtil.getValue(cell));
-                }*/
-                ExcelUser user = new ExcelUser();
-                user.setId(idnum + i);
-                ExcelUserProfile userProfile = new ExcelUserProfile();
-                userProfile.setId(idnum + i);
+                try{
+                    Row row = sheet.getRow(i);// 获取行对象
+                    if (row == null) {// 如果为空，不处理
+                        continue;
+                     }
+                    /*int firstCellNum = row.getFirstCellNum();
+                    int lastCellNum = row.getLastCellNum();
+                    for(int j = firstCellNum;j<lastCellNum;j++){
+                        Cell cell = row.getCell(j);
+                        System.out.println(ExcelUtil.getValue(cell));
+                    }*/
+                    ExcelUser user = new ExcelUser();
+                    user.setId(idnum + i);
+                    ExcelUserProfile userProfile = new ExcelUserProfile();
+                    userProfile.setId(idnum + i);
 
-                cell = row.getCell(0);//工号
-                String userno = ExcelUtil.getValue(cell);
-                user.setNickname(userno);
-                user.setEmail(userno+"");
+                    cell = row.getCell(0);//工号
+                    String userno = ExcelUtil.getValue(cell);
+                    user.setNickname(userno);
+                    user.setEmail(userno+""+"@hospital.com");
 
-                cell = row.getCell(1);//姓名
-                String truename = ExcelUtil.getValue(cell);
-                userProfile.setTruename(truename);
+                    cell = row.getCell(1);//姓名
+                    String truename = ExcelUtil.getValue(cell);
+                    userProfile.setTruename(truename);
 
-                cell = row.getCell(2);//性别
-                String gender = ExcelUtil.getValue(cell);
-                if("男".equals("gender")){
-                    userProfile.setGender("male");
-                }else if("女".equals("gender")){
-                    userProfile.setGender("female");
-                }else{
-                    userProfile.setGender("secret");
+                    cell = row.getCell(2);//性别
+                    String gender = ExcelUtil.getValue(cell);
+                    if("男".equals("gender")){
+                        userProfile.setGender("male");
+                    }else if("女".equals("gender")){
+                        userProfile.setGender("female");
+                    }else{
+                        userProfile.setGender("secret");
+                    }
+
+                    cell = row.getCell(3);//身份证号
+                    String idcard = ExcelUtil.getValue(cell);
+                    userProfile.setIdcard(idcard);
+
+                    cell = row.getCell(4);//出生日期
+                    String birthDay = ExcelUtil.getValue(cell);
+                    userProfile.setVarcharField1(birthDay);
+
+                    cell = row.getCell(5);//手机号码
+                    String phone = ExcelUtil.getValue(cell);
+                    userProfile.setMobile(phone);
+
+                    cell = row.getCell(6);//职称
+                    String jobname = ExcelUtil.getValue(cell);
+                    userProfile.setJob(jobname);
+
+                    cell = row.getCell(7);//行政职务
+                    String position = ExcelUtil.getValue(cell);
+                    userProfile.setVarcharField2(position);
+
+                    cell = row.getCell(8);//病区
+                    String area = ExcelUtil.getValue(cell);
+                    userProfile.setVarcharField3(area);
+
+                    cell = row.getCell(9);//层级
+                    String rank = ExcelUtil.getValue(cell);
+                    userProfile.setCompany(rankMap.get(rank));
+
+                    cell = row.getCell(10);//专业类别
+                    String profession = ExcelUtil.getValue(cell);
+                    userProfile.setVarcharField4(profession);
+
+                    cell = row.getCell(11);//最高学位
+                    String maxEducation = ExcelUtil.getValue(cell);
+                    userProfile.setVarcharField6(maxEducation);
+
+                    cell = row.getCell(12);//教学老师
+                    String teacher = ExcelUtil.getValue(cell);
+                    userProfile.setVarcharField5(teacher);
+
+                    cell = row.getCell(13);//其他
+                    String other = ExcelUtil.getValue(cell);
+                    userProfile.setVarcharField7(other);
+
+                    userList.add(user);
+                    userProfileList.add(userProfile);
+                }catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
                 }
-
-                cell = row.getCell(3);//身份证号
-                String idcard = ExcelUtil.getValue(cell);
-                userProfile.setIdcard(idcard);
-
-                cell = row.getCell(4);//出生日期
-                String birthDay = ExcelUtil.getValue(cell);
-                userProfile.setVarcharField1(birthDay);
-
-                cell = row.getCell(5);//手机号码
-                String phone = ExcelUtil.getValue(cell);
-                userProfile.setMobile(phone);
-
-                cell = row.getCell(6);//职称
-                String jobname = ExcelUtil.getValue(cell);
-                userProfile.setJob(jobname);
-
-                cell = row.getCell(7);//行政职务
-                String position = ExcelUtil.getValue(cell);
-                userProfile.setVarcharField2(position);
-
-                cell = row.getCell(8);//病区
-                String area = ExcelUtil.getValue(cell);
-                userProfile.setVarcharField3(area);
-
-                cell = row.getCell(9);//层级
-                String rank = ExcelUtil.getValue(cell);
-                userProfile.setCompany(rankMap.get(rank));
-
-                cell = row.getCell(10);//专业类别
-                String profession = ExcelUtil.getValue(cell);
-                userProfile.setVarcharField4(profession);
-
-                cell = row.getCell(11);//最高学位
-                String maxEducation = ExcelUtil.getValue(cell);
-                userProfile.setVarcharField6(maxEducation);
-
-                cell = row.getCell(12);//教学老师
-                String teacher = ExcelUtil.getValue(cell);
-                userProfile.setVarcharField5(teacher);
-
-                cell = row.getCell(13);//其他
-                String other = ExcelUtil.getValue(cell);
-                userProfile.setVarcharField7(other);
-
-                userList.add(user);
-                userProfileList.add(userProfile);
             }
 
             for(int i=0;i<userList.size();i++){
-                ExcelUser user = userList.get(i);
-                ExcelUserProfile userProfile = userProfileList.get(i);
-                userService.addExcelUser(user);
-                userProfileService.addExcelUserProfile(userProfile);
+                try{
+                    ExcelUser user = userList.get(i);
+                    ExcelUserProfile userProfile = userProfileList.get(i);
+                    userService.addExcelUser(user);
+                    userProfileService.addExcelUserProfile(userProfile);
+                }catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
+                }
+
             }
 
             //处理合并单元格 end
@@ -209,9 +228,9 @@ public class MemberUploadController {
 
         } catch (Exception e) {
             e.printStackTrace();
-
+            return false;
         }
-
+        return true;
     }
 
 
@@ -374,6 +393,15 @@ public class MemberUploadController {
         map.put("company",company);
         List<Map> userList = userService.getUserDetail(map);
 
+        List<Map> rankList = memScoreStatisticsService.getlevels();
+
+        Map<String,String> rankMap = new HashMap<String,String>();
+
+        for(int i=0;i<rankList.size();i++){
+            Map mapa = rankList.get(i);
+            rankMap.put(StringUtil.getString(mapa.get("id")),StringUtil.getString(mapa.get("title")));
+        }
+
         HSSFWorkbook workbook = new HSSFWorkbook();
         HSSFSheet sheet = workbook.createSheet("用户信息");
         createTitle(workbook, sheet);
@@ -382,14 +410,23 @@ public class MemberUploadController {
             HSSFRow row = sheet.createRow(rowNum);
             row.createCell(0).setCellValue(StringUtil.getString(m.get("nickname")));          //工号
             row.createCell(1).setCellValue(StringUtil.getString(m.get("truename")));          //姓名
-            row.createCell(2).setCellValue(StringUtil.getString(m.get("birthday")));          //性别
+            String g = StringUtil.getString(m.get("gender"));
+            if("male".equals(g)){
+                g = "男";
+            }else if("female".equals(g)){
+                g = "女";
+            }else{
+                g = "保密";
+            }
+            row.createCell(2).setCellValue(g);          //性别
+
             row.createCell(3).setCellValue(StringUtil.getString(m.get("idcard")));            //身份证号
             row.createCell(4).setCellValue(StringUtil.getString(m.get("varcharField1")));    //出生日期
             row.createCell(5).setCellValue(StringUtil.getString(m.get("mobile")));            //手机号码
             row.createCell(6).setCellValue(StringUtil.getString(m.get("job")));               //职称
             row.createCell(7).setCellValue(StringUtil.getString(m.get("varcharField2")));    //行政职务
             row.createCell(8).setCellValue(StringUtil.getString(m.get("varcharField3")));     //病区
-            row.createCell(9).setCellValue(StringUtil.getString(m.get("company")));           //层级
+            row.createCell(9).setCellValue(rankMap.get(StringUtil.getString(m.get("company"))));           //层级
             row.createCell(10).setCellValue(StringUtil.getString(m.get("varcharField4")));    //专业类别
             row.createCell(11).setCellValue(StringUtil.getString(m.get("varcharField6")));    //最高学历
             row.createCell(12).setCellValue(StringUtil.getString(m.get("varcharField5")));    //教学老师

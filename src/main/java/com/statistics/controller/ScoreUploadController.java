@@ -1,5 +1,7 @@
 package com.statistics.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.statistics.model.ExcelUser;
 import com.statistics.model.ExcelUserProfile;
 import com.statistics.model.User;
@@ -43,9 +45,10 @@ public class ScoreUploadController {
         return "/scoreUpload/scoreUpload";
     }
 
-    @RequestMapping(value = "/upload")
+    @RequestMapping(value = "/upload",produces="text/html;charset=UTF-8;")
     @ResponseBody
     public String upload(@RequestParam MultipartFile file) {
+        JSONObject obj = new JSONObject();
         try {
             if (file.isEmpty()) {
                 return "文件为空";
@@ -71,21 +74,31 @@ public class ScoreUploadController {
             }
             file.transferTo(dest);// 文件写入
 
-            readExcel(path);
+            boolean r = readExcel(path);
+
+            if(!r){
+
+                obj.put("msg","上传失败");
+                return JSON.toJSONString(obj);
+            }
 
 
             dest.delete();
 
-            return "success";
-        } catch (IllegalStateException e) {
+
+            obj.put("msg","上传成功");
+            return JSON.toJSONString(obj);
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+
+            obj.put("msg","上传失败");
+            return JSON.toJSONString(obj);
         }
-        return "上传失败";
+
+
     }
 
-    public void readExcel(String path){
+    public boolean readExcel(String path){
 
 
         List<UserScore> userScoreList = new ArrayList<UserScore>();
@@ -95,65 +108,76 @@ public class ScoreUploadController {
             Cell cell = null;
             //下面是处理合并单元格的代码。
             for(int i = 1; i <= sheet.getLastRowNum(); i++){
-                Row row = sheet.getRow(i);// 获取行对象
-                if (row == null) {// 如果为空，不处理
-                    continue;
+                try{
+                    Row row = sheet.getRow(i);// 获取行对象
+                    if (row == null) {// 如果为空，不处理
+                        continue;
+                    }
+
+                    UserScore userScore = new UserScore();
+
+                    cell = row.getCell(0);//姓名
+                    String name = ExcelUtil.getValue(cell);
+
+                    cell = row.getCell(1);//工号
+                    String userno = ExcelUtil.getValue(cell);
+                    User queryUser = new User();
+                    queryUser.setNickname(userno);
+                    Map user = userService.getUser(queryUser);
+                    userScore.setUserId(Integer.valueOf(StringUtil.getString(user.get("id"))));
+
+
+                    cell = row.getCell(2);//所获学分
+                    String score = ExcelUtil.getValue(cell);
+                    userScore.setScore(new BigDecimal(score));
+
+                    cell = row.getCell(3);//备注
+                    String remark = ExcelUtil.getValue(cell);
+                    userScore.setRemark(remark);
+
+                    cell = row.getCell(4);//课程名称
+                    String courseName = ExcelUtil.getValue(cell);
+                    userScore.setCourseName(courseName);
+
+                    cell = row.getCell(5);//年份
+                    String year = ExcelUtil.getValue(cell);
+                    userScore.setYear(Integer.valueOf(StringUtil.getString(year)));
+
+                    cell = row.getCell(6);//课程分类
+                    String type = ExcelUtil.getValue(cell);
+                    if(type.equals("线下专业课程")){
+                        userScore.setCourseType(1001);
+                        userScore.setCourseId(-1);
+                    }else if(type.equals("线下层级课程")){
+                        userScore.setCourseType(1003);
+                        userScore.setCourseId(-2);
+                    }else{
+                        userScore.setCourseType(1002);
+                        userScore.setCourseId(-3);
+                    }
+                    userScoreList.add(userScore);
+                }catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
                 }
-
-                UserScore userScore = new UserScore();
-
-                cell = row.getCell(0);//姓名
-                String name = ExcelUtil.getValue(cell);
-
-                cell = row.getCell(1);//工号
-                String userno = ExcelUtil.getValue(cell);
-                User queryUser = new User();
-                queryUser.setNickname(userno);
-                Map user = userService.getUser(queryUser);
-                userScore.setUserId(Integer.valueOf(StringUtil.getString(user.get("id"))));
-
-
-                cell = row.getCell(2);//所获学分
-                String score = ExcelUtil.getValue(cell);
-                userScore.setScore(new BigDecimal(score));
-
-                cell = row.getCell(3);//备注
-                String remark = ExcelUtil.getValue(cell);
-                userScore.setRemark(remark);
-
-                cell = row.getCell(4);//课程名称
-                String courseName = ExcelUtil.getValue(cell);
-                userScore.setCourseName(courseName);
-
-                cell = row.getCell(5);//年份
-                String year = ExcelUtil.getValue(cell);
-                userScore.setYear(Integer.valueOf(StringUtil.getString(year)));
-
-                cell = row.getCell(6);//课程分类
-                String type = ExcelUtil.getValue(cell);
-                if(type.equals("线下专业课程")){
-                    userScore.setCourseType(1001);
-                    userScore.setCourseId(-1);
-                }else if(type.equals("线下层级课程")){
-                    userScore.setCourseType(1003);
-                    userScore.setCourseId(-2);
-                }else{
-                    userScore.setCourseType(1002);
-                    userScore.setCourseId(-3);
-                }
-                userScoreList.add(userScore);
             }
 
             for(int i=0;i<userScoreList.size();i++){
-                UserScore userScore = userScoreList.get(i);
-                userScoreService.addUserScore(userScore);
+                try{
+                    UserScore userScore = userScoreList.get(i);
+                    userScoreService.addUserScore(userScore);
+                }catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
+                }
             }
 
 
         } catch (Exception e) {
             e.printStackTrace();
-
+            return false;
         }
+        return true;
 
     }
 

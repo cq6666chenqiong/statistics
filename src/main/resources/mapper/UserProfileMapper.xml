@@ -79,7 +79,7 @@
         #{company},
         #{job},
         #{school},
-        #{class},
+        #{memberClass},
         #{weibo},
         #{weixin},
         #{isQQPublic},
@@ -119,7 +119,7 @@
         #{textField6},
         #{textField7},
         #{textField8},
-        #{extField9},
+        #{textField9},
         #{textField10}
 
         )
@@ -201,7 +201,7 @@
         #{company},
         #{job},
         #{school},
-        #{class},
+        #{memberClass},
         #{weibo},
         #{weixin},
         #{isQQPublic},
@@ -241,7 +241,7 @@
         #{textField6},
         #{textField7},
         #{textField8},
-        #{extField9},
+        #{textField9},
         #{textField10}
 
         )

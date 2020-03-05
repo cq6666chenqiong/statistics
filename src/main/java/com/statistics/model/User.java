@@ -10,7 +10,7 @@ public class User {
     private String password;   //	用户密码,
     private String salt;	//	密码SALT,
     private String payPassword;	//	支付密码,
-    private String payPasswordSal;	//	支付密码Salt,
+    private String payPasswordSalt;	//	支付密码Salt,
     private String uri;	//	用户URI,
     private String nickname;	//	工号
     private String title;	//	头像,
@@ -93,12 +93,12 @@ public class User {
         this.payPassword = payPassword;
     }
 
-    public String getPayPasswordSal() {
-        return payPasswordSal;
+    public String getPayPasswordSalt() {
+        return payPasswordSalt;
     }
 
-    public void setPayPasswordSal(String payPasswordSal) {
-        this.payPasswordSal = payPasswordSal;
+    public void setPayPasswordSalt(String payPasswordSalt) {
+        this.payPasswordSalt = payPasswordSalt;
     }
 
     public String getUri() {
