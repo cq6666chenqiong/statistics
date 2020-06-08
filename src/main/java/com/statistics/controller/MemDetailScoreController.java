@@ -20,7 +20,7 @@ public class MemDetailScoreController {
     @Autowired
     private MemScoreStatisticsService memScoreStatisticsService;
 
-    @RequestMapping(value = "/getMemberDetailScore")
+    @RequestMapping(value = "/getMemberDetailScore",produces="text/html;charset=utf-8")
     @ResponseBody
     public String getMemberDetailScore(HttpServletRequest request, HttpServletResponse response){
         String nickname = request.getParameter("nickname");

@@ -68,7 +68,7 @@ public class MemberUploadController {
             String newName = UUID.randomUUID().toString().replaceAll("-","");
 
             // 设置文件存储路径
-            String filePath = "D://aim//";
+            String filePath = ConstantData.fileUploadTmplpath;
             //String path = filePath + fileName + suffixName;
             String path = filePath + newName + suffixName;
 

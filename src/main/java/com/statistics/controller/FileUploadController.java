@@ -1,5 +1,6 @@
 package com.statistics.controller;
 
+import com.statistics.util.ConstantData;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,7 +29,7 @@ public class FileUploadController {
             System.out.println("文件的后缀名为：" + suffixName);
 
             // 设置文件存储路径
-            String filePath = "D://aim//";
+            String filePath = ConstantData.fileUploadTmplpath;
             String path = filePath + fileName + suffixName;
 
             File dest = new File(path);

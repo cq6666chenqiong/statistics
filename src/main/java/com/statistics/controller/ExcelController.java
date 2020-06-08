@@ -59,18 +59,28 @@ public class ExcelController {
                 Map scoreMap = list.get(j);
                  Integer type = Integer.valueOf(StringUtil.getString(scoreMap.get("type")));
                  if(type < 35){
-                     if(Integer.valueOf(StringUtil.getString(scoreMap.get("ispass"))) == 0){
+                     if(StringUtil.getString(scoreMap.get("ispass")).equals("")){
                          scoreMap.put("ispass","未通过");
                      }else{
-                         scoreMap.put("ispass","通过");
+                         if(Integer.valueOf(StringUtil.getString(scoreMap.get("ispass"))) == 0){
+                             scoreMap.put("ispass","未通过");
+                         }else{
+                             scoreMap.put("ispass","通过");
+                         }
                      }
+
                      levelList.add(scoreMap);
                  }else{
-                     if(Integer.valueOf(StringUtil.getString(scoreMap.get("ispass"))) == 0){
+                     if(StringUtil.getString(scoreMap.get("ispass")).equals("")){
                          scoreMap.put("ispass","未通过");
                      }else{
-                         scoreMap.put("ispass","通过");
+                         if(Integer.valueOf(StringUtil.getString(scoreMap.get("ispass"))) == 0){
+                             scoreMap.put("ispass","未通过");
+                         }else{
+                             scoreMap.put("ispass","通过");
+                         }
                      }
+
                      professionList.add(scoreMap);
                  }
             }
@@ -91,10 +101,11 @@ public class ExcelController {
                 professionList.add(umap);
             }
             List<Map<String,String>> userResult = memScoreStatisticsService.getUserResult(queryMap);
+            String totalscore = "0";
             if(userResult != null && userResult.size() > 0){
                 Map<String,String> result = userResult.get(0);
                 if(StringUtil.getString(result.get("status")).equals("1")) ispass = "通过";
-
+                totalscore = StringUtil.getString(result.get("total_score"));
             }
             Map<String,Object> userScoreMap = new HashMap<String,Object>();
             userScoreMap.put("userId",userId);
@@ -105,7 +116,7 @@ public class ExcelController {
             userScoreMap.put("professionList",professionList);
             userScoreMap.put("ispass",ispass);
             userScoreMap.put("nickname",nickname);
-
+            userScoreMap.put("totalscore",totalscore);
             userScoreList.add(userScoreMap);
         }
         HSSFWorkbook wb = new HSSFWorkbook();
@@ -144,7 +155,9 @@ public class ExcelController {
         cell = row.createCell((short) 6);
         cell.setCellValue("是否通过");
         cell.setCellStyle(styleGreen);
-
+        cell = row.createCell((short) 7);
+        cell.setCellValue("总学分");
+        cell.setCellStyle(styleGreen);
 
         for(int i=0;i<userScoreList.size();i++) {
             //System.out.println(JSON.toJSONString(userScoreList.get(i)));
@@ -186,6 +199,11 @@ public class ExcelController {
             cell = row.createCell((short) 6);
             cell.setCellValue( StringUtil.getString(map.get("ispass")));
             cell.setCellStyle(styleCentor);
+            cell = row.createCell((short) 7);
+            cell.setCellValue( StringUtil.getString(map.get("totalscore")));
+            cell.setCellStyle(styleCentor);
+
+
         }
 
         // 第六步，将文件存到指定位置

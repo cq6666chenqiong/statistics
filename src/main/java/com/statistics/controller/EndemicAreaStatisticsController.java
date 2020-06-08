@@ -34,7 +34,7 @@ public class EndemicAreaStatisticsController {
 
 
 
-    @RequestMapping(value = "/statisticsEveryOneTotalScore")
+    @RequestMapping(value = "/statisticsEveryOneTotalScore",produces="text/html;charset=utf-8")
     @ResponseBody
     public void statisticsEveryOneTotalScore(){
         Map userQqueryMap = new HashMap();

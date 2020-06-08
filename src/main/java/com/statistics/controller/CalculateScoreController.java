@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -24,13 +25,62 @@ public class CalculateScoreController {
 
     private BigDecimal standardScore = new BigDecimal(13);
 
-    @RequestMapping(value = "/calculateScore")
-    public void calculateScore() throws Exception {
+    @RequestMapping(value = "/calculateResult")
+    public void calculateResult(HttpServletRequest req) throws Exception {
         SimpleDateFormat td = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date = new Date();
         SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
-        String time = sd.format(date);
-        String year = time.split("-")[0];
+        Date date = new Date();
+        String year = req.getParameter("year");
+        String time = "1987-01-01";
+        if(year == null){
+
+            String stime = sd.format(date);
+            year = stime.split("-")[0];
+        }
+
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.clear();
+        calendar.set(Calendar.YEAR,Integer.valueOf(year));
+        calendar.roll(Calendar.DAY_OF_YEAR,-1);
+        Date currYearLast = calendar.getTime();
+        String currYearLastday = sd.format(currYearLast);
+
+
+
+
+        Date beginDate = td.parse(year + "-01-01 00:00:00");
+        Date endDate = td.parse(year + "-12-31 23:59:59");
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(beginDate);
+        long beginTime = cal.getTimeInMillis()/1000;
+        cal.setTime(endDate);
+        long endTime = cal.getTimeInMillis()/1000;
+
+
+        System.out.println(beginDate);
+        System.out.println(endDate);
+        System.out.println(year);
+
+        calculateResult(year,beginTime,endTime);
+
+        // System.out.println("end=================task");
+    }
+
+
+    @RequestMapping(value = "/calculateScore")
+    public void calculateScore(HttpServletRequest req) throws Exception {
+        SimpleDateFormat td = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
+        String year = req.getParameter("year");
+        String time = "1987-01-01";
+        if(year == null){
+
+            String stime = sd.format(date);
+            year = stime.split("-")[0];
+        }
+
 
         Calendar calendar = Calendar.getInstance();
         calendar.clear();
@@ -44,6 +94,7 @@ public class CalculateScoreController {
         }
 
 
+
         Date beginDate = td.parse(year + "-01-01 00:00:00");
         Date endDate = td.parse(year + "-12-31 23:59:59");
         Calendar cal = Calendar.getInstance();
@@ -54,6 +105,11 @@ public class CalculateScoreController {
         Map delmap = new HashMap();
         delmap.put("year",year);
         courseMgService.delUserStatisticsScore(delmap);
+
+        System.out.println(beginDate);
+        System.out.println(endDate);
+        System.out.println(year);
+
 
         List<Map> endemicArealist = memScoreStatisticsService.getEndemicArea();
         List<Map> professionnallist = memScoreStatisticsService.getProfessionalGroup();
@@ -135,7 +191,7 @@ public class CalculateScoreController {
                 map.put("userId", userId);
                 map.put("status", 1);
                 map.put("total_score", sumScore);
-                map.put("year", "2019");
+                map.put("year", year);
                 List<Map<String, String>> resultlist = memScoreStatisticsService.getUserResult(map);
                 if (resultlist != null && resultlist.size() > 0) {
                     memScoreStatisticsService.updateUserResult(map);
@@ -148,7 +204,7 @@ public class CalculateScoreController {
                 map.put("userId", userId);
                 map.put("status", 0);
                 map.put("total_score", sumScore);
-                map.put("year", "2019");
+                map.put("year", year);
                 List<Map<String, String>> resultlist = memScoreStatisticsService.getUserResult(map);
                 if (resultlist != null && resultlist.size() > 0) {
                     memScoreStatisticsService.updateUserResult(map);

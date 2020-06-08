@@ -63,7 +63,7 @@ public class ScoreUploadController {
             String newName = UUID.randomUUID().toString().replaceAll("-","");
 
             // 设置文件存储路径
-            String filePath = "D://aim//";
+            String filePath = ConstantData.fileUploadTmplpath;
             //String path = filePath + fileName + suffixName;
             String path = filePath + newName + suffixName;
 
@@ -147,10 +147,10 @@ public class ScoreUploadController {
                     String type = ExcelUtil.getValue(cell);
                     if(type.equals("线下专业课程")){
                         userScore.setCourseType(1001);
-                        userScore.setCourseId(-1);
-                    }else if(type.equals("线下层级课程")){
-                        userScore.setCourseType(1003);
                         userScore.setCourseId(-2);
+                    }else if(type.equals("线下层级课程")){
+                        userScore.setCourseType(34);
+                        userScore.setCourseId(-1);
                     }else{
                         userScore.setCourseType(1002);
                         userScore.setCourseId(-3);

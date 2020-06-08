@@ -86,17 +86,25 @@ public class MemScoreStatisticsController {
                 Map scoreMap = list.get(j);
                 Integer type = Integer.valueOf(StringUtil.getString(scoreMap.get("type")));
                 if(type < 35){
-                    if(Integer.valueOf(StringUtil.getString(scoreMap.get("ispass"))) == 0){
+                    if(StringUtil.getString(scoreMap.get("ispass")).equals("")){
                         scoreMap.put("ispass","未通过");
                     }else{
-                        scoreMap.put("ispass","通过");
+                        if(Integer.valueOf(StringUtil.getString(scoreMap.get("ispass"))) == 0){
+                            scoreMap.put("ispass","未通过");
+                        }else{
+                            scoreMap.put("ispass","通过");
+                        }
                     }
                     levelList.add(scoreMap);
                 }else{
-                    if(Integer.valueOf(StringUtil.getString(scoreMap.get("ispass"))) == 0){
+                    if(StringUtil.getString(scoreMap.get("ispass")).equals("")){
                         scoreMap.put("ispass","未通过");
                     }else{
-                        scoreMap.put("ispass","通过");
+                        if(Integer.valueOf(StringUtil.getString(scoreMap.get("ispass"))) == 0){
+                            scoreMap.put("ispass","未通过");
+                        }else{
+                            scoreMap.put("ispass","通过");
+                        }
                     }
                     professionList.add(scoreMap);
                 }
@@ -166,6 +174,7 @@ public class MemScoreStatisticsController {
     @RequestMapping(value = "/getMemberStatistics",produces="text/html;charset=utf-8")
     @ResponseBody
     public String getMemberStatistics(){
+
         List<Map> endemicArealist = memScoreStatisticsService.getEndemicArea();
         List<Map> professionnallist = memScoreStatisticsService.getProfessionalGroup();
         Map<Integer,String> professionnalMap = new HashMap<Integer,String>();
@@ -311,7 +320,7 @@ public class MemScoreStatisticsController {
         return JSON.toJSONString(userScorelist);
     }
 
-    @RequestMapping(value = "/makeMemberStatistics")
+    @RequestMapping(value = "/makeMemberStatistics",produces="text/html;charset=utf-8")
     @ResponseBody
     public String makeMemberStatistics(HttpServletRequest request, HttpServletResponse response){
         Date date = new Date();

@@ -24,10 +24,10 @@ public class CalculateScoreTask {
 
     private BigDecimal standardScore = new BigDecimal(13);
 
-    /*@Scheduled(cron = "0 0 0/5 * * ?")*/
 
-    @Scheduled(cron = "0 45 22 * * ?")
 
+    /*@Scheduled(cron = "0 50 21 * * ?")*/
+    @Scheduled(cron = "0 0 8,18 * * ?")
     public void run() throws Exception {
         SimpleDateFormat td = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date();
@@ -138,7 +138,7 @@ public class CalculateScoreTask {
                 map.put("userId", userId);
                 map.put("status", 1);
                 map.put("total_score", sumScore);
-                map.put("year", "2019");
+                map.put("year", year);
                 List<Map<String, String>> resultlist = memScoreStatisticsService.getUserResult(map);
                 if (resultlist != null && resultlist.size() > 0) {
                     memScoreStatisticsService.updateUserResult(map);
@@ -151,7 +151,7 @@ public class CalculateScoreTask {
                 map.put("userId", userId);
                 map.put("status", 0);
                 map.put("total_score", sumScore);
-                map.put("year", "2019");
+                map.put("year", year);
                 List<Map<String, String>> resultlist = memScoreStatisticsService.getUserResult(map);
                 if (resultlist != null && resultlist.size() > 0) {
                     memScoreStatisticsService.updateUserResult(map);
@@ -379,6 +379,7 @@ public class CalculateScoreTask {
         while(is.hasNext()){
             Integer key = is.next();
             Map scoreMap =fenMap.get(key);
+            //queryMap.put("year",year);
             List userScores = memScoreStatisticsService.getUserStatisticsScores(scoreMap);
             //System.out.println("个数"+userScores.size());
             if(userScores != null && userScores.size() > 0){
